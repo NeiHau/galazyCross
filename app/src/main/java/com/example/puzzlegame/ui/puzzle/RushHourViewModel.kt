@@ -1,8 +1,11 @@
-package com.example.rushgame.ui.rushhour
+package com.example.puzzlegame.ui.puzzle
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.puzzlegame.domain.GameState
+import com.example.puzzlegame.domain.Vehicle
+import com.example.puzzlegame.data.GameLevels.LEVELS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,77 +13,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RushHourViewModel : ViewModel() {
-    // 車両を表すデータクラス - イミュータブルなデータモデル
-    data class Vehicle(
-        val id: String,
-        val position: Offset,
-        val length: Int,
-        val isHorizontal: Boolean,
-        val isTarget: Boolean = false
-    )
-
-    // ゲーム状態を表すデータクラス - 状態管理を整理
-    data class GameState(
-        val vehicles: List<Vehicle> = emptyList(),
-        val selectedVehicleId: String? = null,
-        val isGameComplete: Boolean = false
-    )
-
-    companion object {
-        const val BOARD_SIZE = 6
-
-        // 各レベルの初期配置
-        private val LEVELS = listOf(
-            // レベル 1
-            listOf(
-                Vehicle("target", Offset(1f, 2f), 2, true, true),
-                Vehicle("truck1", Offset(0f, 0f), 3, false),
-                Vehicle("car1", Offset(3f, 0f), 2, true)
-            ),
-            // レベル 2
-            listOf(
-                Vehicle("target", Offset(2f, 2f), 2, true, true),
-                Vehicle("truck1", Offset(0f, 0f), 3, false),
-                Vehicle("car1", Offset(4f, 0f), 2, true),
-                Vehicle("car2", Offset(3f, 3f), 2, false)
-            ),
-            // レベル 3
-            listOf(
-                Vehicle("target", Offset(1f, 2f), 2, true, true),
-                Vehicle("truck1", Offset(0f, 0f), 3, false),
-                Vehicle("car1", Offset(3f, 0f), 2, true),
-                Vehicle("car2", Offset(1f, 1f), 2, true),
-                Vehicle("car3", Offset(4f, 4f), 2, false)
-            ),
-            // レベル 4
-            listOf(
-                Vehicle("target", Offset(0f, 2f), 2, true, true),
-                Vehicle("truck1", Offset(0f, 0f), 3, false),
-                Vehicle("car1", Offset(3f, 0f), 2, true),
-                Vehicle("car2", Offset(3f, 3f), 2, false),
-                Vehicle("truck2", Offset(2f, 4f), 3, true)
-            ),
-            // レベル 5
-            listOf(
-                Vehicle("target", Offset(1f, 2f), 2, true, true),
-                Vehicle("truck1", Offset(0f, 3f), 3, false),
-                Vehicle("car1", Offset(4f, 0f), 2, true),
-                Vehicle("car2", Offset(1f, 1f), 2, true),
-                Vehicle("car3", Offset(5f, 3f), 2, false),
-                Vehicle("car4", Offset(2f, 3f), 2, false)
-            )
-        )
-    }
-
-    // 単一のStateFlowで状態を管理
-    private val _gameState = MutableStateFlow(GameState(vehicles = LEVELS[4]))
+    private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
+    private val _currentLevel = MutableStateFlow(0)
+    val currentLevel: StateFlow<Int> = _currentLevel.asStateFlow()
+
+
     init {
-        initializeGame(4)
+        initializeGame(0)
     }
 
     fun initializeGame(level: Int) {
+        _currentLevel.value = level
         _gameState.update { currentState ->
             currentState.copy(
                 vehicles = LEVELS.getOrNull(level) ?: LEVELS[0],
@@ -175,5 +120,9 @@ class RushHourViewModel : ViewModel() {
 
         // 車両の新しい位置が他の車両と衝突しないか確認
         return !vehicleBounds.any { it in otherVehiclesBounds }
+    }
+
+    companion object {
+        const val BOARD_SIZE = 6
     }
 }

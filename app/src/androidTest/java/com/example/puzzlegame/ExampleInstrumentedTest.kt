@@ -1,4 +1,4 @@
-package com.example.rushgame
+package com.example.puzzlegame
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

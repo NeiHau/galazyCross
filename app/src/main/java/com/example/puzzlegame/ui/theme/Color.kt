@@ -1,4 +1,4 @@
-package com.example.rushgame.ui.theme
+package com.example.puzzlegame.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
