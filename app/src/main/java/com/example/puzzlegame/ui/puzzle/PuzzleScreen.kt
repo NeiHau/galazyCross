@@ -3,16 +3,15 @@ package com.example.puzzlegame.ui.puzzle
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,18 +26,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.puzzlegame.data.GameLevels.LEVELS
@@ -56,6 +59,14 @@ fun PuzzleScreen(
 ) {
     val rushHourViewModel: RushHourViewModel = viewModel()
     val gameState by rushHourViewModel.gameState.collectAsState()
+    val focusManager = LocalFocusManager.current
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(gameState.isGameComplete) {
+        if (gameState.isGameComplete) {
+            showDialog = true
+        }
+    }
 
     LaunchedEffect(levelIndex) {
         rushHourViewModel.initializeGame(levelIndex)
@@ -67,7 +78,9 @@ fun PuzzleScreen(
             TopAppBar(
                 title = { Text("レベル ${levelIndex + 1}") },
                 navigationIcon = {
-                    IconButton(onClick = onBackToLevelSelection) {
+                    IconButton(
+                        onClick = onBackToLevelSelection,
+                    ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "戻る"
@@ -77,13 +90,23 @@ fun PuzzleScreen(
             )
         }
     ) { paddingValues ->
-        if (gameState.isGameComplete) {
+        if (showDialog && gameState.isGameComplete) {
             GameClearDialog(
                 currentLevel = levelIndex,
                 hasNextLevel = levelIndex < LEVELS.size - 1,
-                onReplay = { rushHourViewModel.initializeGame(levelIndex) },
-                onNextLevel = { onNavigateToLevel(levelIndex + 1) },
-                onShowLevelSelection = onBackToLevelSelection
+                onReplay = {
+                    showDialog = false
+                    rushHourViewModel.initializeGame(levelIndex)
+                },
+                onNextLevel = {
+                    showDialog = false
+                    onNavigateToLevel(levelIndex + 1)
+                },
+                onShowLevelSelection = {
+                    showDialog = false
+                    focusManager.clearFocus()
+                    onBackToLevelSelection()
+                }
             )
         }
 
@@ -109,6 +132,23 @@ fun PuzzleScreen(
         ) {
             val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
 
+            TextButton(
+                modifier = Modifier
+                    .width(width = 120.dp)
+                    .padding(vertical = 12.dp)
+                    .clip(shape = RoundedCornerShape(size = 16.dp))
+                    .background(color = Color.White),
+                content = {
+                    Text(
+                        text =  "リセット",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                onClick = { rushHourViewModel.initializeGame(levelIndex) },
+                enabled =!gameState.isGameComplete,
+            )
+            Spacer(modifier = Modifier.height(height = 12.dp))
             Box(
                 modifier = Modifier
                     .size(boardSize)
@@ -151,9 +191,10 @@ private fun GridBackground(boardSize: Dp) {
         Box(
             modifier = Modifier
                 .size(boardSize)
-                .background(Color.Gray.copy(alpha = 0.75f))
+                .background(Color(0xFFC5C5C5))
         )
-        // グリッド線を描画するCanvas
+
+        // グリッド線
         Canvas(modifier = Modifier.size(boardSize)) {
             val cellSize = size.width / 6f
             val strokeWidth = 1.dp.toPx()
