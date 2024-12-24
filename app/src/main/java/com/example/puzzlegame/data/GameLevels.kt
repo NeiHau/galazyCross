@@ -4,9 +4,8 @@ import androidx.compose.ui.geometry.Offset
 import com.example.puzzlegame.domain.Vehicle
 
 object GameLevels {
-    // ゲームの全レベルを格納する定数
     val LEVELS = listOf(
-        // レベル1: 初心者向けの簡単な配置
+        // レベル1
         listOf(
             Vehicle(
                 id = "target",
@@ -29,7 +28,7 @@ object GameLevels {
             )
         ),
 
-        // レベル2: やや複雑な配置
+        // レベル2
         listOf(
             Vehicle(
                 id = "target",
@@ -58,7 +57,7 @@ object GameLevels {
             )
         ),
 
-        // レベル3: 中級者向けの配置
+        // レベル3
         listOf(
             Vehicle(
                 id = "target",
@@ -93,7 +92,7 @@ object GameLevels {
             )
         ),
 
-        // レベル4: より複雑な配置
+        // レベル4
         listOf(
             Vehicle(
                 id = "target",
@@ -134,7 +133,7 @@ object GameLevels {
             )
         ),
 
-        // レベル5: 上級者向けの配置
+        // レベル5
         listOf(
             Vehicle(
                 id = "target",

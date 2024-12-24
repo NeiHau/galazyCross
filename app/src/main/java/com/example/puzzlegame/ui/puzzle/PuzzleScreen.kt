@@ -42,12 +42,10 @@ fun PuzzleScreen(
     val rushHourViewModel: RushHourViewModel = viewModel()
     val gameState by rushHourViewModel.gameState.collectAsState()
 
-    // 初期化時に正しいレベルを設定
     LaunchedEffect(levelIndex) {
         rushHourViewModel.initializeGame(levelIndex)
     }
 
-    // ゲームクリア時のダイアログ表示
     if (gameState.isGameComplete) {
         GameClearDialog(
             currentLevel = levelIndex,
@@ -59,7 +57,6 @@ fun PuzzleScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // 戻るボタンを追加
         IconButton(
             onClick = onBackToLevelSelection,
             modifier = Modifier
@@ -75,14 +72,12 @@ fun PuzzleScreen(
                 .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 現在のレベルを表示
             Text(
                 text = "レベル ${levelIndex + 1}",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // 既存のゲームボードの実装
             val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
             Box(
                 modifier = Modifier
@@ -123,9 +118,9 @@ fun PuzzleScreen(
 
 @Composable
 private fun GridBackground(boardSize: Dp) {
-    val cellSize = boardSize / 6 // ボードサイズを6等分
+    val cellSize = boardSize / 6 // ボードサイズ6等分
 
-    // 6×6のグリッドを作成
+    // 6×6のグリッド
     repeat(6) { row ->
         repeat(6) { col ->
             Box(

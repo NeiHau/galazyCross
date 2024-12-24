@@ -10,7 +10,6 @@ import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.ui.home.LevelSelectionScreen
 import com.example.puzzlegame.ui.puzzle.PuzzleScreen
 
-// ナビゲーションの経路を定義
 sealed class Screen(val route: String) {
     data object LevelSelection : Screen("levelSelection")
     data object Game : Screen("game/{levelIndex}") {
@@ -31,7 +30,6 @@ fun RushHourNavigation() {
                 levels = LEVELS,
                 onLevelSelect = { levelIndex ->
                     navController.navigate(Screen.Game.createRoute(levelIndex)) {
-                        // バックスタックをクリアして新しいゲームを開始
                         popUpTo(Screen.LevelSelection.route) {
                             saveState = true
                         }
