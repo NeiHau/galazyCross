@@ -18,7 +18,7 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun RushHourNavigation() {
+fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(

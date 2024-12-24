@@ -1,5 +1,7 @@
 package com.example.puzzlegame.ui.puzzle
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -10,29 +12,42 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.ui.puzzle.components.GameClearDialog
 import com.example.puzzlegame.ui.puzzle.components.VehicleControl
 import com.example.puzzlegame.ui.puzzle.components.VehicleItem
+import com.example.rushgame.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PuzzleScreen(
     levelIndex: Int,
@@ -46,43 +61,57 @@ fun PuzzleScreen(
         rushHourViewModel.initializeGame(levelIndex)
     }
 
-    if (gameState.isGameComplete) {
-        GameClearDialog(
-            currentLevel = levelIndex,
-            hasNextLevel = levelIndex < LEVELS.size - 1,
-            onReplay = { rushHourViewModel.initializeGame(levelIndex) },
-            onNextLevel = { onNavigateToLevel(levelIndex + 1) },
-            onShowLevelSelection = onBackToLevelSelection
-        )
-    }
+    Scaffold(
+        modifier = Modifier.zIndex(1f),
+        topBar = {
+            TopAppBar(
+                title = { Text("レベル ${levelIndex + 1}") },
+                navigationIcon = {
+                    IconButton(onClick = onBackToLevelSelection) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "戻る"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        if (gameState.isGameComplete) {
+            GameClearDialog(
+                currentLevel = levelIndex,
+                hasNextLevel = levelIndex < LEVELS.size - 1,
+                onReplay = { rushHourViewModel.initializeGame(levelIndex) },
+                onNextLevel = { onNavigateToLevel(levelIndex + 1) },
+                onShowLevelSelection = onBackToLevelSelection
+            )
+        }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        IconButton(
-            onClick = onBackToLevelSelection,
+        Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "戻る")
+            Image(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_puzzle_game_background_image),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
         }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                .padding(paddingValues)
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "レベル ${levelIndex + 1}",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
             val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
+
             Box(
                 modifier = Modifier
                     .size(boardSize)
-                    .padding(4.dp)
             ) {
                 GridBackground(boardSize)
 
@@ -118,21 +147,38 @@ fun PuzzleScreen(
 
 @Composable
 private fun GridBackground(boardSize: Dp) {
-    val cellSize = boardSize / 6 // ボードサイズ6等分
+    Box(modifier = Modifier.size(boardSize)) {
+        Box(
+            modifier = Modifier
+                .size(boardSize)
+                .background(Color.Gray.copy(alpha = 0.75f))
+        )
+        // グリッド線を描画するCanvas
+        Canvas(modifier = Modifier.size(boardSize)) {
+            val cellSize = size.width / 6f
+            val strokeWidth = 1.dp.toPx()
 
-    // 6×6のグリッド
-    repeat(6) { row ->
-        repeat(6) { col ->
-            Box(
-                modifier = Modifier
-                    .offset(
-                        x = col * cellSize,
-                        y = row * cellSize
-                    )
-                    .size(cellSize)
-                    .border(0.5.dp, Color.Gray)
-                    .background(Color.White)
-            )
+            // 縦線
+            for (i in 0..6) {
+                val x = i * cellSize
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.8f),
+                    start = Offset(x, 0f),
+                    end = Offset(x, size.height),
+                    strokeWidth = strokeWidth
+                )
+            }
+
+            // 横線
+            for (i in 0..6) {
+                val y = i * cellSize
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.8f),
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = strokeWidth
+                )
+            }
         }
     }
 }

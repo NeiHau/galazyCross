@@ -6,15 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.puzzlegame.ui.theme.RushgameTheme
+import com.example.puzzlegame.ui.theme.PuzzleGameTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            RushgameTheme {
-                RushHourNavigation()
+            PuzzleGameTheme {
+                AppNavigation()
             }
         }
     }
@@ -22,8 +22,8 @@ class MainActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    RushgameTheme {
-        RushHourNavigation()
+fun PuzzleGamePreview() {
+    PuzzleGameTheme {
+        AppNavigation()
     }
 }
