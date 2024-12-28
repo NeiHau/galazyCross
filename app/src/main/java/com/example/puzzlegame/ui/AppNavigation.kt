@@ -56,7 +56,7 @@ fun AppNavigation(
             PuzzleScreen(
                 levelIndex = levelIndex,
                 onLevelCleared = { clearedLevel ->
-                    puzzleViewModel.addClearedLevel(clearedLevel) // ViewModel の関数を使用
+                    puzzleViewModel.addClearedLevel(clearedLevel)
                 },
                 onNavigateToLevel = { newLevelIndex ->
                     navController.navigate(Screen.Game.createRoute(newLevelIndex)) {
