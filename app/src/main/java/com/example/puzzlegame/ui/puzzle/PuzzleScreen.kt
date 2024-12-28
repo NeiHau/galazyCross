@@ -55,7 +55,7 @@ import com.example.rushgame.R
 fun PuzzleScreen(
     levelIndex: Int,
     onNavigateToLevel: (Int) -> Unit,
-    onBackToLevelSelection: () -> Unit
+    onBackToLevelSelection: () -> Unit,
 ) {
     val rushHourViewModel: RushHourViewModel = viewModel()
     val gameState by rushHourViewModel.gameState.collectAsState()
@@ -109,7 +109,6 @@ fun PuzzleScreen(
                 }
             )
         }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -119,16 +118,15 @@ fun PuzzleScreen(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_puzzle_game_background_image),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
         }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
 
@@ -150,11 +148,9 @@ fun PuzzleScreen(
             )
             Spacer(modifier = Modifier.height(height = 12.dp))
             Box(
-                modifier = Modifier
-                    .size(boardSize)
+                modifier = Modifier.size(boardSize)
             ) {
                 GridBackground(boardSize)
-
                 gameState.vehicles.forEach { vehicle ->
                     VehicleItem(
                         vehicle = vehicle,
@@ -167,9 +163,7 @@ fun PuzzleScreen(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(66.dp))
-
             VehicleControl(
                 vehicle = gameState.selectedVehicleId?.let { selectedId ->
                     gameState.vehicles.find { it.id == selectedId }
@@ -179,7 +173,7 @@ fun PuzzleScreen(
                         rushHourViewModel.moveVehicle(selectedId, offset)
                     }
                 },
-                cellSize = boardSize / 6
+                cellSize = boardSize / 6,
             )
         }
     }

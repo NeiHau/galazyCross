@@ -25,7 +25,7 @@ import com.example.puzzlegame.domain.Vehicle
 @Composable
 fun LevelSelectionScreen(
     levels: List<List<Vehicle>>,
-    onLevelSelect: (Int) -> Unit
+    onLevelSelect: (Int) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -33,7 +33,7 @@ fun LevelSelectionScreen(
                 title = {
                     Text(
                         text = "レベル選択",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
                     )
                 }
             )

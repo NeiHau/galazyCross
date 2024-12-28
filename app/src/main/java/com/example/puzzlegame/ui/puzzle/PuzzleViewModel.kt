@@ -16,16 +16,11 @@ class RushHourViewModel : ViewModel() {
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
-    private val _currentLevel = MutableStateFlow(0)
-    val currentLevel: StateFlow<Int> = _currentLevel.asStateFlow()
-
-
     init {
         initializeGame(0)
     }
 
     fun initializeGame(level: Int) {
-        _currentLevel.value = level
         _gameState.update { currentState ->
             currentState.copy(
                 vehicles = LEVELS.getOrNull(level) ?: LEVELS[0],
@@ -35,7 +30,6 @@ class RushHourViewModel : ViewModel() {
         }
     }
 
-
     fun selectVehicle(id: String?) {
         _gameState.update { currentState ->
             currentState.copy(selectedVehicleId = id)
@@ -44,7 +38,6 @@ class RushHourViewModel : ViewModel() {
 
     fun moveVehicle(id: String, newPosition: Offset) {
         viewModelScope.launch {
-            // 現在の状態を取得
             val currentState = _gameState.value
             val vehicle = currentState.vehicles.find { it.id == id } ?: return@launch
 

@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LevelButton(
     levelNumber: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
@@ -23,7 +23,7 @@ fun LevelButton(
     ) {
         Text(
             text = levelNumber.toString(),
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
