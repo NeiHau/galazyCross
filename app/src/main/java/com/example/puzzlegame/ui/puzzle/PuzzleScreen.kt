@@ -55,13 +55,13 @@ import com.example.rushgame.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PuzzleScreen(
-    rushHourViewModel: RushHourViewModel = hiltViewModel(),
+    puzzleViewModel: PuzzleViewModel = hiltViewModel(),
     levelIndex: Int,
     onLevelCleared: (Int) -> Unit,
     onNavigateToLevel: (Int) -> Unit,
     onBackToLevelSelection: () -> Unit,
 ) {
-    val gameState by rushHourViewModel.gameState.collectAsState()
+    val gameState by puzzleViewModel.gameState.collectAsState()
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
 
@@ -73,7 +73,7 @@ fun PuzzleScreen(
     }
 
     LaunchedEffect(levelIndex) {
-        rushHourViewModel.initializeGame(levelIndex)
+        puzzleViewModel.initializeGame(levelIndex)
     }
 
     Scaffold(
@@ -100,7 +100,7 @@ fun PuzzleScreen(
                 hasNextLevel = levelIndex < LEVELS.size - 1,
                 onReplay = {
                     showDialog = false
-                    rushHourViewModel.initializeGame(levelIndex)
+                    puzzleViewModel.initializeGame(levelIndex)
                 },
                 onNextLevel = {
                     showDialog = false
@@ -147,7 +147,7 @@ fun PuzzleScreen(
                         fontWeight = FontWeight.Bold,
                     )
                 },
-                onClick = { rushHourViewModel.initializeGame(levelIndex) },
+                onClick = { puzzleViewModel.initializeGame(levelIndex) },
                 enabled =!gameState.isGameComplete,
             )
             Spacer(modifier = Modifier.height(height = 12.dp))
@@ -159,9 +159,9 @@ fun PuzzleScreen(
                     VehicleItem(
                         vehicle = vehicle,
                         isSelected = vehicle.id == gameState.selectedVehicleId,
-                        onSelect = { rushHourViewModel.selectVehicle(vehicle.id) },
+                        onSelect = { puzzleViewModel.selectVehicle(vehicle.id) },
                         onMove = { offset ->
-                            rushHourViewModel.moveVehicle(vehicle.id, offset)
+                            puzzleViewModel.moveVehicle(vehicle.id, offset)
                         },
                         cellSize = boardSize / 6,
                         ambulanceIcon = painterResource(id = R.drawable.ic_ambulance),
@@ -175,7 +175,7 @@ fun PuzzleScreen(
                 },
                 onMove = { offset ->
                     gameState.selectedVehicleId?.let { selectedId ->
-                        rushHourViewModel.moveVehicle(selectedId, offset)
+                        puzzleViewModel.moveVehicle(selectedId, offset)
                     }
                 },
             )
