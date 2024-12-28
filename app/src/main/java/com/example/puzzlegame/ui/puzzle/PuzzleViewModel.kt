@@ -3,21 +3,39 @@ package com.example.puzzlegame.ui.puzzle
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.domain.Vehicle
-import com.example.puzzlegame.data.GameLevels.LEVELS
+import com.example.puzzlegame.repository.GameRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RushHourViewModel : ViewModel() {
+@HiltViewModel
+class RushHourViewModel @Inject constructor(
+    private val gameRepository: GameRepository
+) : ViewModel() {
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
+    // DataStore からクリア済みレベルを読み取る
+    val clearedLevels: StateFlow<Set<Int>> = gameRepository.clearedLevelsFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     init {
         initializeGame(0)
+    }
+
+    fun addClearedLevel(level: Int) {
+        viewModelScope.launch {
+            gameRepository.addClearedLevel(level)
+        }
     }
 
     fun initializeGame(level: Int) {
@@ -27,6 +45,12 @@ class RushHourViewModel : ViewModel() {
                 selectedVehicleId = null,
                 isGameComplete = false
             )
+        }
+    }
+
+    private fun markLevelCleared(level: Int) {
+        viewModelScope.launch {
+            gameRepository.addClearedLevel(level)
         }
     }
 
@@ -41,10 +65,8 @@ class RushHourViewModel : ViewModel() {
             val currentState = _gameState.value
             val vehicle = currentState.vehicles.find { it.id == id } ?: return@launch
 
-            // 移動が有効でない場合は早期リターン
             if (!isValidPosition(vehicle, newPosition, currentState.vehicles)) return@launch
 
-            // 車両の移動を含む新しい状態を作成
             val stateWithMovedVehicle = currentState.copy(
                 vehicles = currentState.vehicles.map { v ->
                     if (v.id == id) {
@@ -64,11 +86,13 @@ class RushHourViewModel : ViewModel() {
                 }
             )
 
-            // 勝利判定を行い、最終的な状態を作成
             val finalState = checkWin(stateWithMovedVehicle)
-
-            // StateFlowを更新
             _gameState.update { finalState }
+
+            if (finalState.isGameComplete) {
+                val currentLevel = LEVELS.indexOf(finalState.vehicles)
+                markLevelCleared(currentLevel)
+            }
         }
     }
 
@@ -76,29 +100,24 @@ class RushHourViewModel : ViewModel() {
         val targetVehicle = state.vehicles.find { it.isTarget }
         val isWin = targetVehicle?.position?.x == BOARD_SIZE - 2f
 
-        // 新しい状態を作成して返す
         return state.copy(isGameComplete = isWin)
     }
 
     private fun isValidPosition(vehicle: Vehicle, newPosition: Offset, vehicles: List<Vehicle>): Boolean {
         val vehicleBounds = if (vehicle.isHorizontal) {
-            // 水平方向の車両の占有範囲
             (newPosition.x.toInt() until (newPosition.x + vehicle.length).toInt()).map { x ->
                 Pair(x, newPosition.y.toInt())
             }
         } else {
-            // 垂直方向の車両の占有範囲
             (newPosition.y.toInt() until (newPosition.y + vehicle.length).toInt()).map { y ->
                 Pair(newPosition.x.toInt(), y)
             }
         }
 
-        // ボード範囲外のチェック
         if (vehicleBounds.any { (x, y) -> x !in 0 until BOARD_SIZE || y !in 0 until BOARD_SIZE }) {
             return false
         }
 
-        // 他の車両と衝突しないことを確認
         val otherVehiclesBounds = vehicles.filter { it.id != vehicle.id }.flatMap { otherVehicle ->
             if (otherVehicle.isHorizontal) {
                 (otherVehicle.position.x.toInt() until (otherVehicle.position.x + otherVehicle.length).toInt()).map { x ->
@@ -111,7 +130,6 @@ class RushHourViewModel : ViewModel() {
             }
         }.toSet()
 
-        // 車両の新しい位置が他の車両と衝突しないか確認
         return !vehicleBounds.any { it in otherVehiclesBounds }
     }
 

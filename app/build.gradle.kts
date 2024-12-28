@@ -1,6 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.dagger.hilt.android")  // versionは上で適用済みのため不要
+    kotlin("kapt")
 }
 
 android {
@@ -50,8 +52,6 @@ android {
 }
 
 dependencies {
-    val lifecycleVersion = "2.7.0"
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -75,5 +75,15 @@ dependencies {
     // Jetpack Compose用のViewModel拡張
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+
+    // Hilt Core
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+
+    // （DataStore, Coroutine など他の依存も入れる）
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 }

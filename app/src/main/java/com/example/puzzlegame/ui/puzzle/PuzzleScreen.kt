@@ -45,7 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.ui.puzzle.components.GameClearDialog
 import com.example.puzzlegame.ui.puzzle.components.VehicleControl
@@ -55,11 +55,12 @@ import com.example.rushgame.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PuzzleScreen(
+    rushHourViewModel: RushHourViewModel = hiltViewModel(),
     levelIndex: Int,
+    onLevelCleared: (Int) -> Unit,
     onNavigateToLevel: (Int) -> Unit,
     onBackToLevelSelection: () -> Unit,
 ) {
-    val rushHourViewModel: RushHourViewModel = viewModel()
     val gameState by rushHourViewModel.gameState.collectAsState()
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
@@ -67,6 +68,7 @@ fun PuzzleScreen(
     LaunchedEffect(gameState.isGameComplete) {
         if (gameState.isGameComplete) {
             showDialog = true
+            onLevelCleared(levelIndex)
         }
     }
 

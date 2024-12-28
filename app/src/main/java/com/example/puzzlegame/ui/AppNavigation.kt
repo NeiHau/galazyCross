@@ -1,6 +1,7 @@
 package com.example.puzzlegame.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +10,8 @@ import androidx.navigation.navArgument
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.ui.home.LevelSelectionScreen
 import com.example.puzzlegame.ui.puzzle.PuzzleScreen
+import com.example.puzzlegame.ui.puzzle.RushHourViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 sealed class Screen(val route: String) {
     data object LevelSelection : Screen("levelSelection")
@@ -18,7 +21,9 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    rushHourViewModel: RushHourViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -28,6 +33,7 @@ fun AppNavigation() {
         composable(Screen.LevelSelection.route) {
             LevelSelectionScreen(
                 levels = LEVELS,
+                clearedLevels = rushHourViewModel.clearedLevels.collectAsState(initial = emptySet()).value,
                 onLevelSelect = { levelIndex ->
                     navController.navigate(Screen.Game.createRoute(levelIndex)) {
                         popUpTo(Screen.LevelSelection.route) {
@@ -49,6 +55,9 @@ fun AppNavigation() {
             val levelIndex = backStackEntry.arguments?.getInt("levelIndex") ?: 0
             PuzzleScreen(
                 levelIndex = levelIndex,
+                onLevelCleared = { clearedLevel ->
+                    rushHourViewModel.addClearedLevel(clearedLevel) // ViewModel の関数を使用
+                },
                 onNavigateToLevel = { newLevelIndex ->
                     navController.navigate(Screen.Game.createRoute(newLevelIndex)) {
                         popUpTo(Screen.Game.route) {

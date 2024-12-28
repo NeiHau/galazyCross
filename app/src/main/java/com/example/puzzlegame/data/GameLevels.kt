@@ -68,12 +68,12 @@ object GameLevels {
                 length = 2,
                 isHorizontal = true,
             ),
-            Vehicle(
-                id = "10",
-                position = Offset(4f, 2f),
-                length = 3,
-                isHorizontal = false,
-            ),
+//            Vehicle(
+//                id = "10",
+//                position = Offset(4f, 2f),
+//                length = 3,
+//                isHorizontal = false,
+//            ),
             Vehicle(
                 id = "11",
                 position = Offset(3f, 5f),

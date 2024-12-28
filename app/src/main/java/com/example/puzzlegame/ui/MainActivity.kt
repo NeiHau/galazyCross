@@ -7,10 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.puzzlegame.ui.theme.PuzzleGameTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // UI セットアップ
         enableEdgeToEdge()
         setContent {
             PuzzleGameTheme {
@@ -19,6 +22,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
