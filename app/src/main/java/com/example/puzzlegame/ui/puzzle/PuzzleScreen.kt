@@ -33,11 +33,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -159,7 +161,8 @@ fun PuzzleScreen(
                         onMove = { offset ->
                             rushHourViewModel.moveVehicle(vehicle.id, offset)
                         },
-                        cellSize = boardSize / 6
+                        cellSize = boardSize / 6,
+                        ambulanceIcon = painterResource(id = R.drawable.ic_ambulance),
                     )
                 }
             }
@@ -173,7 +176,6 @@ fun PuzzleScreen(
                         rushHourViewModel.moveVehicle(selectedId, offset)
                     }
                 },
-                cellSize = boardSize / 6,
             )
         }
     }
@@ -188,30 +190,38 @@ private fun GridBackground(boardSize: Dp) {
                 .background(Color(0xFFC5C5C5))
         )
 
-        // グリッド線
+        // グリッド線の描画
         Canvas(modifier = Modifier.size(boardSize)) {
             val cellSize = size.width / 6f
             val strokeWidth = 1.dp.toPx()
 
-            // 縦線
+            // グリッド線の色を統一
+            // アルファ値を0.3fに設定して、より繊細な線を描画
+            val gridLineColor = Color.Black.copy(alpha = 0.2f)
+
+            // 縦線を描画
             for (i in 0..6) {
                 val x = i * cellSize
                 drawLine(
-                    color = Color.Black.copy(alpha = 0.8f),
+                    color = gridLineColor,
                     start = Offset(x, 0f),
                     end = Offset(x, size.height),
-                    strokeWidth = strokeWidth
+                    strokeWidth = strokeWidth,
+                    // アンチエイリアスを有効にして、線をよりスムーズに
+                    blendMode = BlendMode.SrcOver,
                 )
             }
 
-            // 横線
+            // 横線を描画
             for (i in 0..6) {
                 val y = i * cellSize
                 drawLine(
-                    color = Color.Black.copy(alpha = 0.8f),
+                    color = gridLineColor,
                     start = Offset(0f, y),
                     end = Offset(size.width, y),
-                    strokeWidth = strokeWidth
+                    strokeWidth = strokeWidth,
+                    // アンチエイリアスを有効にして、線をよりスムーズに
+                    blendMode = BlendMode.SrcOver,
                 )
             }
         }
