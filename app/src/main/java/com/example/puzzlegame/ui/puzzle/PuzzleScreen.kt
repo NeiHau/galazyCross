@@ -64,6 +64,15 @@ fun PuzzleScreen(
     val gameState by puzzleViewModel.gameState.collectAsState()
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
+    val ambulanceIcon = painterResource(id = R.drawable.ic_ambulance)
+    val stoneIcon = painterResource(id = R.drawable.ic_rock)
+    val trashIcon = painterResource(id = R.drawable.ic_trash)
+    val tireIcon = painterResource(id = R.drawable.ic_tire)
+    val treeIcon = painterResource(id = R.drawable.ic_tree)
+
+    LaunchedEffect(levelIndex) {
+        puzzleViewModel.initializeGame(levelIndex)
+    }
 
     LaunchedEffect(gameState.isGameComplete) {
         if (gameState.isGameComplete) {
@@ -148,13 +157,17 @@ fun PuzzleScreen(
                     )
                 },
                 onClick = { puzzleViewModel.initializeGame(levelIndex) },
-                enabled =!gameState.isGameComplete,
+                enabled = !gameState.isGameComplete,
             )
             Spacer(modifier = Modifier.height(height = 12.dp))
             Box(
                 modifier = Modifier.size(boardSize)
             ) {
                 GridBackground(boardSize)
+
+                // もともとは puzzleViewModel からの gameState.vehicles を描画しているが、
+                // 「ランダムで石にしたい」という場合は vehiclesWithStone を使って描画する例を示す
+                // (ただし、ViewModel 管理している vehicles と同期したい場合は設計に注意)
                 gameState.vehicles.forEach { vehicle ->
                     VehicleItem(
                         vehicle = vehicle,
@@ -164,7 +177,11 @@ fun PuzzleScreen(
                             puzzleViewModel.moveVehicle(vehicle.id, offset)
                         },
                         cellSize = boardSize / 6,
-                        ambulanceIcon = painterResource(id = R.drawable.ic_ambulance),
+                        ambulanceIcon = ambulanceIcon,
+                        stoneIcon = stoneIcon,
+                        trashIcon = trashIcon,
+                        tireIcon = tireIcon,
+                        treeIcon = treeIcon,
                     )
                 }
             }

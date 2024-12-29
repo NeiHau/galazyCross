@@ -39,6 +39,10 @@ fun VehicleItem(
     onMove: (Offset) -> Unit,
     cellSize: Dp,
     ambulanceIcon: Painter,
+    stoneIcon: Painter,
+    trashIcon: Painter,
+    tireIcon: Painter,
+    treeIcon: Painter,
 ) {
     var accumulatedOffset by remember { mutableStateOf(Offset.Zero) }
     var dragStartPosition by remember { mutableStateOf(vehicle.position) }
@@ -124,15 +128,93 @@ fun VehicleItem(
                 }
             }
     ) {
-        if (vehicle.isTarget) {
-            Image(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(4.dp),
-                contentScale = ContentScale.FillBounds,
-                painter = ambulanceIcon,
-                contentDescription = "Ambulance",
-            )
+        when {
+            vehicle.isTarget -> {
+                Image(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp),
+                    contentScale = ContentScale.FillBounds,
+                    painter = ambulanceIcon,
+                    contentDescription = "Ambulance",
+                )
+            }
+            // ▼ 長さ 2 & 水平方向 & Stone
+            vehicle.length == 2 && vehicle.isHorizontal && vehicle.isStone -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // 暗い黒系のカラーにする例
+                        .background(Color.Black.copy(alpha = 0.7f))
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        contentScale = ContentScale.Fit,
+                        painter = stoneIcon,
+                        contentDescription = "Stone (Length=2, Horizontal)",
+                    )
+                }
+            }
+            // ▼ 長さ 2 & 水平方向 & Trash
+            vehicle.length == 2 && vehicle.isHorizontal && vehicle.isTrash -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF8B4513))
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit,
+                        painter = trashIcon,
+                        contentDescription = "Trash (Length=2, Horizontal)",
+                    )
+                }
+            }
+            // ▼ 長さ 2 & 垂直方向 & Tire
+            vehicle.length == 2 && !vehicle.isHorizontal && vehicle.isTire -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Gray)
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit,
+                        painter = tireIcon,
+                        contentDescription = "Trash (Length=2, Horizontal)",
+                    )
+                }
+            }
+            vehicle.length == 2 && !vehicle.isHorizontal && vehicle.isTree -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Green)
+                        .border(width = 1.5.dp, color = Color.Black)
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit,
+                        painter = treeIcon,
+                        contentDescription = "Trash (Length=2, Horizontal)",
+                    )
+                }
+            }
+            else -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Blue, shape = RoundedCornerShape(4.dp))
+                )
+            }
         }
     }
 }

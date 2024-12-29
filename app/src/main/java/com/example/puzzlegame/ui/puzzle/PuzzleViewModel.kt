@@ -3,6 +3,7 @@ package com.example.puzzlegame.ui.puzzle
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.puzzlegame.data.GameLevels
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.domain.Vehicle
@@ -39,9 +40,11 @@ class PuzzleViewModel @Inject constructor(
     }
 
     fun initializeGame(level: Int) {
+        val randomVehicles = GameLevels.getRandomizedLevel(level)
+
         _gameState.update { currentState ->
             currentState.copy(
-                vehicles = LEVELS.getOrNull(level) ?: LEVELS[0],
+                vehicles = randomVehicles,
                 selectedVehicleId = null,
                 isGameComplete = false
             )
