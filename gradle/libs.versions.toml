@@ -1,5 +1,7 @@
 [versions]
 agp = "8.6.0"
+billingKtx = "6.1.0"
+firebaseBom = "33.7.0"
 hiltAndroidGradlePlugin = "2.40"
 kotlin = "1.9.0"
 coreKtx = "1.10.1"
@@ -16,6 +18,9 @@ lifecycleViewmodelAndroid = "2.8.7"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleVersion" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleVersion" }
+billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-functions-ktx = { group = "com.google.firebase", name = "firebase-functions-ktx" }  # バージョンを指定しない
 hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroidGradlePlugin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

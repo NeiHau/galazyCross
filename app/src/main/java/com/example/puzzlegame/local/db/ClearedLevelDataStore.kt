@@ -1,6 +1,7 @@
 package com.example.puzzlegame.local.db
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,6 +20,7 @@ class ClearedLevelsDataStore @Inject constructor(
 
     // 既存のコードをクラス内にそのまま入れる
     private val clearedLevelsKey = stringPreferencesKey("cleared_levels")
+    private val tutorialCompletedKey = booleanPreferencesKey("tutorial_completed")
 
     val clearedLevels: Flow<Set<Int>> = context.dataStore.data
         .map { preferences ->
@@ -36,6 +38,17 @@ class ClearedLevelsDataStore @Inject constructor(
                 ?: emptySet()
             val updatedLevels = currentLevels + level
             preferences[clearedLevelsKey] = updatedLevels.joinToString(",")
+        }
+    }
+
+    val isTutorialCompleted: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[tutorialCompletedKey] ?: false
+        }
+
+    suspend fun completeTutorial() {
+        context.dataStore.edit { preferences ->
+            preferences[tutorialCompletedKey] = true
         }
     }
 }

@@ -7,6 +7,8 @@ import javax.inject.Inject
 interface GameRepository {
     val clearedLevelsFlow: Flow<Set<Int>>
     suspend fun addClearedLevel(level: Int)
+    val isTutorialCompletedFlow: Flow<Boolean>
+    suspend fun completeTutorial()
 }
 
 class GameRepositoryImpl @Inject constructor(
@@ -15,5 +17,10 @@ class GameRepositoryImpl @Inject constructor(
     override val clearedLevelsFlow get() = clearedLevelsDataStore.clearedLevels
     override suspend fun addClearedLevel(level: Int) {
         clearedLevelsDataStore.addClearedLevel(level)
+    }
+    override val isTutorialCompletedFlow: Flow<Boolean> = clearedLevelsDataStore.isTutorialCompleted
+
+    override suspend fun completeTutorial() {
+        clearedLevelsDataStore.completeTutorial()
     }
 }

@@ -2,15 +2,16 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")  // versionは上で適用済みのため不要
+    id("com.google.gms.google-services")
     kotlin("kapt")
 }
 
 android {
-    namespace = "com.example.rushgame"
+    namespace = "com.example.galaxycross"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.rushgame"
+        applicationId = "com.example.galaxycross"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -61,6 +62,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.viewmodel.android)
+    implementation(libs.firebase.functions.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -86,4 +88,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation(platform(libs.firebase.bom))
+
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-functions-ktx")
+
+    // 3. Firebase以外の依存関係
+    implementation(libs.billing.ktx)
 }

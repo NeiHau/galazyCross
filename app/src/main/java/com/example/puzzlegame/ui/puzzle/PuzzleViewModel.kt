@@ -20,7 +20,7 @@ import kotlin.math.abs
 
 @HiltViewModel
 class PuzzleViewModel @Inject constructor(
-    private val gameRepository: GameRepository
+    private val gameRepository: GameRepository,
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
@@ -30,6 +30,21 @@ class PuzzleViewModel @Inject constructor(
 
     val clearedLevels: StateFlow<Set<Int>> = gameRepository.clearedLevelsFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    // チュートリアル完了状態
+    val isTutorialCompleted: StateFlow<Boolean> = gameRepository.isTutorialCompletedFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
+        )
+
+    // チュートリアル完了処理
+    fun completeTutorial() {
+        viewModelScope.launch {
+            gameRepository.completeTutorial()
+        }
+    }
 
     fun addClearedLevel(level: Int) {
         viewModelScope.launch {

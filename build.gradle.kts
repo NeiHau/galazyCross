@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.9.0" apply false
     // Hilt Plugin
     id("com.google.dagger.hilt.android") version "2.48" apply false
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }
 
 buildscript {
@@ -16,5 +17,6 @@ buildscript {
     dependencies {
         // Hilt の Gradle プラグインを追加
         classpath(libs.hilt.android.gradle.plugin)
+        classpath("com.google.gms:google-services:4.4.2")
     }
 }

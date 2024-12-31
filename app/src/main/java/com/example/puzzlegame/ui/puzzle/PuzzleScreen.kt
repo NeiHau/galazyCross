@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,7 +54,7 @@ import com.example.puzzlegame.ui.puzzle.components.GameClearDialog
 import com.example.puzzlegame.ui.puzzle.components.GridItemControl
 import com.example.puzzlegame.ui.puzzle.components.SpaceObjectItem
 import com.example.puzzlegame.ui.puzzle.components.rememberPlanetIcons
-import com.example.rushgame.R
+import com.example.galaxycross.R
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

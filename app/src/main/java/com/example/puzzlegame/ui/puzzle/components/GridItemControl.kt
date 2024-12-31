@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.puzzlegame.domain.GridItem
-import com.example.rushgame.R
+import com.example.galaxycross.R
 
 @Composable
 fun GridItemControl(
