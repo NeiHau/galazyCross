@@ -23,15 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.puzzlegame.domain.Vehicle
+import com.example.puzzlegame.data.GameLevels
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LevelSelectionScreen(
-    levels: List<List<Vehicle>>,
     onLevelSelect: (Int) -> Unit,
     clearedLevels: Set<Int>,
 ) {
+    // GameLevels.RAW_LEVELSの代わりに、利用可能なレベル数を取得
+    val availableLevelCount = GameLevels.getLevelCount()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -51,8 +53,7 @@ fun LevelSelectionScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(levels.size) { index ->
-
+            items(availableLevelCount) { index ->
                 // 前のレベルをクリアしているかをチェック
                 val isEnabled = if (index == 0) {
                     true // 最初のレベルは常に有効
@@ -60,7 +61,7 @@ fun LevelSelectionScreen(
                     clearedLevels.contains(index - 1) // 前レベルがクリア済みなら有効
                 }
 
-                // クリア済みかどうかをチェック（星アイコンの色に使用）
+                // クリア済みかどうかをチェック
                 val isCleared = clearedLevels.contains(index)
 
                 LevelSelectionItem(

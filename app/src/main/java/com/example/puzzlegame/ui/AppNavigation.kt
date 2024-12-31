@@ -32,9 +32,10 @@ fun AppNavigation(
     ) {
         composable(Screen.LevelSelection.route) {
             LevelSelectionScreen(
-                levels = LEVELS,
                 clearedLevels = puzzleViewModel.clearedLevels.collectAsState(initial = emptySet()).value,
                 onLevelSelect = { levelIndex ->
+                    // レベルが選択されたときの処理
+                    puzzleViewModel.initializeGame(levelIndex)
                     navController.navigate(Screen.Game.createRoute(levelIndex)) {
                         popUpTo(Screen.LevelSelection.route) {
                             saveState = true

@@ -4,7 +4,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.puzzlegame.data.GameLevels
-import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.domain.Vehicle
 import com.example.puzzlegame.repository.GameRepository
@@ -25,13 +24,11 @@ class PuzzleViewModel @Inject constructor(
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
-    // DataStore からクリア済みレベルを読み取る
+    // 現在のレベルを追跡するための変数を追加
+    private var currentLevel: Int = 0
+
     val clearedLevels: StateFlow<Set<Int>> = gameRepository.clearedLevelsFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
-
-    init {
-        initializeGame(0)
-    }
 
     fun addClearedLevel(level: Int) {
         viewModelScope.launch {
@@ -40,20 +37,15 @@ class PuzzleViewModel @Inject constructor(
     }
 
     fun initializeGame(level: Int) {
-        val randomVehicles = GameLevels.getRandomizedLevel(level)
+        currentLevel = level
+        val vehicles = GameLevels.getRandomizedLevel(level)
 
         _gameState.update { currentState ->
             currentState.copy(
-                vehicles = randomVehicles,
+                vehicles = vehicles,
                 selectedVehicleId = null,
                 isGameComplete = false
             )
-        }
-    }
-
-    private fun markLevelCleared(level: Int) {
-        viewModelScope.launch {
-            gameRepository.addClearedLevel(level)
         }
     }
 
@@ -93,7 +85,6 @@ class PuzzleViewModel @Inject constructor(
             _gameState.update { finalState }
 
             if (finalState.isGameComplete) {
-                val currentLevel = LEVELS.indexOf(finalState.vehicles)
                 markLevelCleared(currentLevel)
             }
         }
@@ -105,6 +96,12 @@ class PuzzleViewModel @Inject constructor(
         val isWin = targetVehicle?.position?.y == 0f
 
         return state.copy(isGameComplete = isWin)
+    }
+
+    private fun markLevelCleared(level: Int) {
+        viewModelScope.launch {
+            gameRepository.addClearedLevel(level)
+        }
     }
 
     private fun isValidPosition(vehicle: Vehicle, newPosition: Offset, vehicles: List<Vehicle>): Boolean {

@@ -71,6 +71,10 @@ fun PuzzleScreen(
     val planetIcons = rememberPlanetIcons()
     val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
 
+    LaunchedEffect(levelIndex) {
+        puzzleViewModel.initializeGame(levelIndex)
+    }
+
     // ゲームクリア時の処理
     LaunchedEffect(gameState.isGameComplete) {
         if (gameState.isGameComplete) {
@@ -157,7 +161,6 @@ fun PuzzleScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ゲームボード
             GameBoard(
                 gameState = gameState,
                 boardSize = boardSize,
