@@ -101,7 +101,8 @@ class PuzzleViewModel @Inject constructor(
 
     private fun checkWin(state: GameState): GameState {
         val targetVehicle = state.vehicles.find { it.isTarget }
-        val isWin = targetVehicle?.position?.x == BOARD_SIZE - 2f
+        // 勝利条件を垂直方向の最上部到達に変更
+        val isWin = targetVehicle?.position?.y == 0f
 
         return state.copy(isGameComplete = isWin)
     }

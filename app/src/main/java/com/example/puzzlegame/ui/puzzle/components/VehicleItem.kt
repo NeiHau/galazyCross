@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -39,14 +40,17 @@ fun VehicleItem(
     onMove: (Offset) -> Unit,
     cellSize: Dp,
     ambulanceIcon: Painter,
-    stoneIcon: Painter,
-    trashIcon: Painter,
-    tireIcon: Painter,
-    treeIcon: Painter,
+    planetIcons: List<Painter>,
 ) {
     var accumulatedOffset by remember { mutableStateOf(Offset.Zero) }
     var dragStartPosition by remember { mutableStateOf(vehicle.position) }
     val coroutineScope = rememberCoroutineScope()
+
+    val planetIcon = remember(vehicle.imageIndex) {
+        if (!vehicle.isTarget && vehicle.imageIndex > 0 && vehicle.imageIndex <= planetIcons.size) {
+            planetIcons[vehicle.imageIndex - 1]
+        } else null
+    }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -110,9 +114,15 @@ fun VehicleItem(
                     }
                 ) { change, dragAmount ->
                     change.consume()
-                    val constrainedDragAmount = if (vehicle.isHorizontal) {
+                    // VehicleItem.ktの変更部分
+                    val constrainedDragAmount = if (vehicle.isTarget) {
+                        // ターゲット車両は垂直方向にのみ移動可能
+                        Offset(0f, dragAmount.y)
+                    } else if (vehicle.isHorizontal) {
+                        // 通常の水平方向の車両は水平方向にのみ移動可能
                         Offset(dragAmount.x, 0f)
                     } else {
+                        // 通常の垂直方向の車両は垂直方向にのみ移動可能
                         Offset(0f, dragAmount.y)
                     }
                     val newAccumulatedOffset = Offset(
@@ -136,83 +146,17 @@ fun VehicleItem(
                         .padding(4.dp),
                     contentScale = ContentScale.FillBounds,
                     painter = ambulanceIcon,
-                    contentDescription = "Ambulance",
+                    contentDescription = "Target Vehicle"
                 )
             }
-            // ▼ 長さ 2 & 水平方向 & Stone
-            vehicle.length == 2 && vehicle.isHorizontal && vehicle.isStone -> {
-                Box(
+            planetIcon != null -> {
+                Image(
                     modifier = Modifier
                         .fillMaxSize()
-                        // 暗い黒系のカラーにする例
-                        .background(Color.Black.copy(alpha = 0.7f))
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        contentScale = ContentScale.Fit,
-                        painter = stoneIcon,
-                        contentDescription = "Stone (Length=2, Horizontal)",
-                    )
-                }
-            }
-            // ▼ 長さ 2 & 水平方向 & Trash
-            vehicle.length == 2 && vehicle.isHorizontal && vehicle.isTrash -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFF8B4513))
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp),
-                        contentScale = ContentScale.Fit,
-                        painter = trashIcon,
-                        contentDescription = "Trash (Length=2, Horizontal)",
-                    )
-                }
-            }
-            // ▼ 長さ 2 & 垂直方向 & Tire
-            vehicle.length == 2 && !vehicle.isHorizontal && vehicle.isTire -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Gray)
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp),
-                        contentScale = ContentScale.Fit,
-                        painter = tireIcon,
-                        contentDescription = "Trash (Length=2, Horizontal)",
-                    )
-                }
-            }
-            vehicle.length == 2 && !vehicle.isHorizontal && vehicle.isTree -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Green)
-                        .border(width = 1.5.dp, color = Color.Black)
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp),
-                        contentScale = ContentScale.Fit,
-                        painter = treeIcon,
-                        contentDescription = "Trash (Length=2, Horizontal)",
-                    )
-                }
-            }
-            else -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Blue, shape = RoundedCornerShape(4.dp))
+                        .padding(4.dp),
+                    contentScale = ContentScale.Fit,
+                    painter = planetIcon,
+                    contentDescription = "Planet ${vehicle.imageIndex}"
                 )
             }
         }

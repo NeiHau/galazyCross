@@ -35,21 +35,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.puzzlegame.data.GameLevels.LEVELS
+import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.ui.puzzle.components.GameClearDialog
 import com.example.puzzlegame.ui.puzzle.components.VehicleControl
 import com.example.puzzlegame.ui.puzzle.components.VehicleItem
+import com.example.puzzlegame.ui.puzzle.components.rememberPlanetIcons
 import com.example.rushgame.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,25 +65,18 @@ fun PuzzleScreen(
     val gameState by puzzleViewModel.gameState.collectAsState()
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
-    val ambulanceIcon = painterResource(id = R.drawable.ic_ambulance)
-    val stoneIcon = painterResource(id = R.drawable.ic_rock)
-    val trashIcon = painterResource(id = R.drawable.ic_trash)
-    val tireIcon = painterResource(id = R.drawable.ic_tire)
-    val treeIcon = painterResource(id = R.drawable.ic_tree)
 
-    LaunchedEffect(levelIndex) {
-        puzzleViewModel.initializeGame(levelIndex)
-    }
+    // リソースの準備
+    val ambulanceIcon = painterResource(id = R.drawable.ic_space_shuttle)
+    val planetIcons = rememberPlanetIcons()
+    val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
 
+    // ゲームクリア時の処理
     LaunchedEffect(gameState.isGameComplete) {
         if (gameState.isGameComplete) {
             showDialog = true
             onLevelCleared(levelIndex)
         }
-    }
-
-    LaunchedEffect(levelIndex) {
-        puzzleViewModel.initializeGame(levelIndex)
     }
 
     Scaffold(
@@ -91,9 +85,7 @@ fun PuzzleScreen(
             TopAppBar(
                 title = { Text("レベル ${levelIndex + 1}") },
                 navigationIcon = {
-                    IconButton(
-                        onClick = onBackToLevelSelection,
-                    ) {
+                    IconButton(onClick = onBackToLevelSelection) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "戻る"
@@ -103,6 +95,7 @@ fun PuzzleScreen(
             )
         }
     ) { paddingValues ->
+        // ゲームクリアダイアログの表示
         if (showDialog && gameState.isGameComplete) {
             GameClearDialog(
                 currentLevel = levelIndex,
@@ -122,18 +115,22 @@ fun PuzzleScreen(
                 }
             )
         }
+
+        // 背景の設定
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
             Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_puzzle_game_background_image),
+                painter = painterResource(id = R.drawable.universe_space01),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
         }
+
+        // メインコンテンツ
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -141,51 +138,38 @@ fun PuzzleScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val boardSize = LocalConfiguration.current.screenWidthDp.dp - 32.dp
-
+            // リセットボタン
             TextButton(
                 modifier = Modifier
-                    .width(width = 120.dp)
+                    .width(120.dp)
                     .padding(vertical = 12.dp)
-                    .clip(shape = RoundedCornerShape(size = 16.dp))
-                    .background(color = Color.White),
-                content = {
-                    Text(
-                        text =  "リセット",
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                    )
-                },
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White),
                 onClick = { puzzleViewModel.initializeGame(levelIndex) },
-                enabled = !gameState.isGameComplete,
-            )
-            Spacer(modifier = Modifier.height(height = 12.dp))
-            Box(
-                modifier = Modifier.size(boardSize)
+                enabled = !gameState.isGameComplete
             ) {
-                GridBackground(boardSize)
-
-                // もともとは puzzleViewModel からの gameState.vehicles を描画しているが、
-                // 「ランダムで石にしたい」という場合は vehiclesWithStone を使って描画する例を示す
-                // (ただし、ViewModel 管理している vehicles と同期したい場合は設計に注意)
-                gameState.vehicles.forEach { vehicle ->
-                    VehicleItem(
-                        vehicle = vehicle,
-                        isSelected = vehicle.id == gameState.selectedVehicleId,
-                        onSelect = { puzzleViewModel.selectVehicle(vehicle.id) },
-                        onMove = { offset ->
-                            puzzleViewModel.moveVehicle(vehicle.id, offset)
-                        },
-                        cellSize = boardSize / 6,
-                        ambulanceIcon = ambulanceIcon,
-                        stoneIcon = stoneIcon,
-                        trashIcon = trashIcon,
-                        tireIcon = tireIcon,
-                        treeIcon = treeIcon,
-                    )
-                }
+                Text(
+                    text = "リセット",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ゲームボード
+            GameBoard(
+                gameState = gameState,
+                boardSize = boardSize,
+                ambulanceIcon = ambulanceIcon,
+                planetIcons = planetIcons,
+                onVehicleSelect = { puzzleViewModel.selectVehicle(it) },
+                onVehicleMove = { id, offset -> puzzleViewModel.moveVehicle(id, offset) }
+            )
+
             Spacer(modifier = Modifier.height(66.dp))
+
+            // 車両コントロール
             VehicleControl(
                 vehicle = gameState.selectedVehicleId?.let { selectedId ->
                     gameState.vehicles.find { it.id == selectedId }
@@ -194,7 +178,7 @@ fun PuzzleScreen(
                     gameState.selectedVehicleId?.let { selectedId ->
                         puzzleViewModel.moveVehicle(selectedId, offset)
                     }
-                },
+                }
             )
         }
     }
@@ -243,6 +227,32 @@ private fun GridBackground(boardSize: Dp) {
                     blendMode = BlendMode.SrcOver,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun GameBoard(
+    gameState: GameState,
+    boardSize: Dp,
+    ambulanceIcon: Painter,
+    planetIcons: List<Painter>,
+    onVehicleSelect: (String) -> Unit,
+    onVehicleMove: (String, Offset) -> Unit
+) {
+    Box(modifier = Modifier.size(boardSize)) {
+        GridBackground(boardSize)
+
+        gameState.vehicles.forEach { vehicle ->
+            VehicleItem(
+                vehicle = vehicle,
+                isSelected = vehicle.id == gameState.selectedVehicleId,
+                onSelect = { onVehicleSelect(vehicle.id) },
+                onMove = { offset -> onVehicleMove(vehicle.id, offset) },
+                cellSize = boardSize / 6,
+                ambulanceIcon = ambulanceIcon,
+                planetIcons = planetIcons
+            )
         }
     }
 }
