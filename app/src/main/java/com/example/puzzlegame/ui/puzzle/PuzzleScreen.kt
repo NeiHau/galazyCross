@@ -3,17 +3,20 @@ package com.example.puzzlegame.ui.puzzle
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +45,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +56,7 @@ import com.example.puzzlegame.ui.puzzle.components.GridItemControl
 import com.example.puzzlegame.ui.puzzle.components.SpaceObjectItem
 import com.example.puzzlegame.ui.puzzle.components.rememberPlanetIcons
 import com.example.rushgame.R
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,9 +163,7 @@ fun PuzzleScreen(
                     fontWeight = FontWeight.Bold,
                 )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
+            Spacer(modifier = Modifier.height(16.dp))
             GameBoard(
                 gameState = gameState,
                 boardSize = boardSize,
@@ -169,7 +172,6 @@ fun PuzzleScreen(
                 onVehicleSelect = { puzzleViewModel.selectVehicle(it) },
             )
             Spacer(modifier = Modifier.height(32.dp))
-            // 車両コントロール
             GridItemControl(
                 gridItem = gameState.selectedVehicleId?.let { selectedId ->
                     gameState.gridItems.find { it.id == selectedId }
@@ -239,18 +241,74 @@ fun GameBoard(
     planetIcons: List<Painter>,
     onVehicleSelect: (String) -> Unit,
 ) {
-    Box(modifier = Modifier.size(boardSize)) {
-        GridBackground(boardSize)
+    // ゴールマス分の余白を追加
+    val cellSize = boardSize / 6
 
-        gameState.gridItems.forEach { vehicle ->
-            SpaceObjectItem(
-                gridItem = vehicle,
-                isSelected = vehicle.id == gameState.selectedVehicleId,
-                onSelect = { onVehicleSelect(vehicle.id) },
-                cellSize = boardSize / 6,
-                ambulanceIcon = ambulanceIcon,
-                planetIcons = planetIcons
-            )
+    Box(
+        modifier = Modifier
+            .size(width = boardSize, height = boardSize + cellSize)  // 高さを1マス分増やす
+            .padding(top = cellSize)  // 上部にスペースを確保
+    ) {
+        // グリッド背景を下にずらして配置
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)  // 下部に寄せる
+                .size(boardSize)
+        ) {
+            GridBackground(boardSize)
         }
+        // ゴールマスを追加
+        GoalCell(
+            cellSize = cellSize
+        )
+        // グリッドアイテムも下にずらして配置
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .size(boardSize)
+        ) {
+            gameState.gridItems.forEach { vehicle ->
+                SpaceObjectItem(
+                    gridItem = vehicle,
+                    isSelected = vehicle.id == gameState.selectedVehicleId,
+                    onSelect = { onVehicleSelect(vehicle.id) },
+                    cellSize = cellSize,
+                    ambulanceIcon = ambulanceIcon,
+                    planetIcons = planetIcons
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GoalCell(
+    cellSize: Dp
+) {
+    Box(
+        modifier = Modifier
+            .offset {
+                IntOffset(
+                    x = (2 * cellSize.toPx()).roundToInt(),  // 左から3つ目
+                    y = (-cellSize.toPx()).roundToInt()      // 通常のグリッドより1マス上
+                )
+            }
+            .size(cellSize)
+            .background(
+                color = Color.Red,
+                shape = RoundedCornerShape(4.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = Color.Green,
+                shape = RoundedCornerShape(4.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "ゴール",
+            color = Color.Yellow,
+            fontWeight = FontWeight.Bold,
+        )
     }
 }

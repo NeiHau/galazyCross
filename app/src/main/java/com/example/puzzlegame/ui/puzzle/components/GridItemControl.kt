@@ -44,7 +44,7 @@ fun GridItemControl(
             enabled = gridItem?.let { !it.isHorizontal } ?: false,
         ) {
             Image(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(60.dp),
                 imageVector = ImageVector.vectorResource(R.drawable.ic_round_arrow_up_icon),
                 contentDescription = "上へ移動",
                 colorFilter = ColorFilter.tint(
@@ -58,7 +58,7 @@ fun GridItemControl(
         }
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(48.dp)
+            horizontalArrangement = Arrangement.spacedBy(64.dp)
         ) {
             // 左方向のボタン
             IconButton(
@@ -72,7 +72,7 @@ fun GridItemControl(
                 enabled = gridItem?.let { it.isHorizontal } ?: false,
             ) {
                 Image(
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(60.dp),
                     imageVector = ImageVector.vectorResource(R.drawable.ic_round_arrow_left_icon),
                     contentDescription = "左へ移動",
                     colorFilter = ColorFilter.tint(
@@ -97,7 +97,7 @@ fun GridItemControl(
                 enabled = gridItem?.isHorizontal ?: false,
             ) {
                 Image(
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(60.dp),
                     imageVector = ImageVector.vectorResource(R.drawable.ic_round_arrow_right_icon),
                     contentDescription = "右へ移動",
                     colorFilter = ColorFilter.tint(
@@ -123,7 +123,7 @@ fun GridItemControl(
             enabled = gridItem?.let { !it.isHorizontal } ?: false,
         ) {
             Image(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(60.dp),
                 imageVector = ImageVector.vectorResource(R.drawable.ic_round_arrow_down_icon),
                 contentDescription = "下へ移動",
                 colorFilter = ColorFilter.tint(
