@@ -13,13 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-# Firebase設定ファイル
-firebase.json
-.firebaserc
-firebase-debug.log
-database.rules.json
-firestore.rules
-firestore.indexes.json
-storage.rules
-firebase-export-*
-.firebase/
+/functions/
