@@ -33,9 +33,8 @@ object FirebaseModule {
     @Singleton
     fun provideFirebaseRepository(
         firestore: FirebaseFirestore,
-        functions: FirebaseFunctions
     ): FirebaseRepository {
-        return FirebaseRepositoryImpl(firestore, functions)
+        return FirebaseRepositoryImpl(firestore)
     }
 
     @Provides

@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LevelSelectionViewModel @Inject constructor(
-    private val billingRepository: BillingRepository,
+//    private val billingRepository: BillingRepository,
 ) : ViewModel() {
     // スクロール状態を保持するための状態
     private val _scrollState = MutableStateFlow(ScrollState())
@@ -22,7 +22,7 @@ class LevelSelectionViewModel @Inject constructor(
     val isPremiumPurchased = _isPremiumPurchased.asStateFlow()
 
     // 課金処理の結果を公開
-    val purchaseResult = billingRepository.purchaseResult
+//    val purchaseResult = billingRepository.purchaseResult
 
     init {
         viewModelScope.launch {
@@ -31,11 +31,11 @@ class LevelSelectionViewModel @Inject constructor(
     }
 
     // プレミアムコンテンツの購入を開始
-    fun startPremiumPurchase() {
-        viewModelScope.launch {
-            billingRepository.startPurchase(PREMIUM_PRODUCT_ID)
-        }
-    }
+//    fun startPremiumPurchase() {
+//        viewModelScope.launch {
+//            billingRepository.startPurchase(PREMIUM_PRODUCT_ID)
+//        }
+//    }
 
     private suspend fun checkPremiumStatus() {
         try {
@@ -50,10 +50,10 @@ class LevelSelectionViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        billingRepository.cleanup()
-    }
+//    override fun onCleared() {
+//        super.onCleared()
+//        billingRepository.cleanup()
+//    }
 
     // スクロール状態を更新する関数
     fun updateScrollState(index: Int, offset: Int) {

@@ -36,37 +36,37 @@ fun AppNavigation(
     val clearedLevels by puzzleViewModel.clearedLevels.collectAsState(initial = emptySet())
     val isTutorialCompleted by puzzleViewModel.isTutorialCompleted.collectAsState(initial = false)
     val isPremiumPurchased by levelSelectionViewModel.isPremiumPurchased.collectAsState()
-    val purchaseResult by levelSelectionViewModel.purchaseResult.collectAsState()
+    // val purchaseResult by levelSelectionViewModel.purchaseResult.collectAsState()
 
     // 課金結果の処理
-    LaunchedEffect(purchaseResult) {
-        when (purchaseResult) {
-            is BillingRepositoryImpl.PurchaseResult.Success -> {
-                // 課金成功時のメッセージ表示
-                // Toast表示のようなUIフィードバックはViewModelではなくUIレイヤーで行う
-                Toast.makeText(
-                    context,
-                    "プレミアムコンテンツが解除されました！",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            is BillingRepositoryImpl.PurchaseResult.Error -> {
-                Toast.makeText(
-                    context,
-                    "購入処理に失敗しました",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            is BillingRepositoryImpl.PurchaseResult.Canceled -> {
-                Toast.makeText(
-                    context,
-                    "購入がキャンセルされました",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            else -> { /* 他の状態は無視 */ }
-        }
-    }
+//    LaunchedEffect(purchaseResult) {
+//        when (purchaseResult) {
+//            is BillingRepositoryImpl.PurchaseResult.Success -> {
+//                // 課金成功時のメッセージ表示
+//                // Toast表示のようなUIフィードバックはViewModelではなくUIレイヤーで行う
+//                Toast.makeText(
+//                    context,
+//                    "プレミアムコンテンツが解除されました！",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//            is BillingRepositoryImpl.PurchaseResult.Error -> {
+//                Toast.makeText(
+//                    context,
+//                    "購入処理に失敗しました",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//            is BillingRepositoryImpl.PurchaseResult.Canceled -> {
+//                Toast.makeText(
+//                    context,
+//                    "購入がキャンセルされました",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//            else -> { /* 他の状態は無視 */ }
+//        }
+//    }
 
     NavHost(
         navController = navController,
@@ -84,7 +84,7 @@ fun AppNavigation(
                 onLevelSelect = { levelIndex ->
                     // レベルが16以降で、プレミアム未購入の場合は購入フローを開始
                     if (levelIndex >= 15 && !isPremiumPurchased) {
-                        levelSelectionViewModel.startPremiumPurchase()
+//                        levelSelectionViewModel.startPremiumPurchase()
                     } else {
                         puzzleViewModel.initializeGame(levelIndex)
                         navController.navigate(Screen.Game.createRoute(levelIndex)) {
@@ -97,7 +97,7 @@ fun AppNavigation(
                     }
                 },
                 onPremiumPurchase = {
-                    levelSelectionViewModel.startPremiumPurchase()
+//                    levelSelectionViewModel.startPremiumPurchase()
                 }
             )
         }

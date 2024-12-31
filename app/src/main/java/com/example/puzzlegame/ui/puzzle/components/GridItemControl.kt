@@ -24,7 +24,7 @@ fun GridItemControl(
     gridItem: GridItem?,
     onMove: (Offset) -> Unit,
 ) {
-    val buttonSize = 48.dp
+    val buttonSize = 60.dp
     val inactiveIconAlpha = 0.3f
 
     Column(
@@ -69,7 +69,7 @@ fun GridItemControl(
                         onMove(newPosition)
                     }
                 },
-                enabled = gridItem?.let { it.isHorizontal } ?: false,
+                enabled = gridItem?.isHorizontal ?: false,
             ) {
                 Image(
                     modifier = Modifier.size(60.dp),

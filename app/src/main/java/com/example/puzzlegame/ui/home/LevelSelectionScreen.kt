@@ -127,7 +127,13 @@ private fun LevelSelectionItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(72.dp)
-            .clickable(onClick = onClick),
+            .then(
+                if (isEnabled || requiresPremium) {
+                    Modifier.clickable(onClick = onClick)
+                } else {
+                    Modifier
+                }
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = when {

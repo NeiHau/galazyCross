@@ -51,81 +51,88 @@ class BillingRepositoryImpl @Inject constructor(
 
     private val _purchaseResult = MutableStateFlow<PurchaseResult>(PurchaseResult.NotInitialized)
     override val purchaseResult: StateFlow<PurchaseResult> = _purchaseResult.asStateFlow()
-
-    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
-        when (billingResult.responseCode) {
-            BillingClient.BillingResponseCode.OK -> {
-                if (purchases != null) {
-                    scope.launch {
-                        processPurchases(purchases)
-                    }
-                }
-            }
-            BillingClient.BillingResponseCode.USER_CANCELED -> {
-                _purchaseResult.value = PurchaseResult.Canceled
-            }
-            else -> {
-                _purchaseResult.value = PurchaseResult.Error(billingResult.debugMessage)
-            }
-        }
+    override suspend fun startPurchase(productId: String) {
+        TODO("Not yet implemented")
     }
+
+    override fun cleanup() {
+        TODO("Not yet implemented")
+    }
+
+//    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
+//        when (billingResult.responseCode) {
+//            BillingClient.BillingResponseCode.OK -> {
+//                if (purchases != null) {
+//                    scope.launch {
+//                        processPurchases(purchases)
+//                    }
+//                }
+//            }
+//            BillingClient.BillingResponseCode.USER_CANCELED -> {
+//                _purchaseResult.value = PurchaseResult.Canceled
+//            }
+//            else -> {
+//                _purchaseResult.value = PurchaseResult.Error(billingResult.debugMessage)
+//            }
+//        }
+//    }
 
     // BillingClientの初期化は購入更新リスナーの後で行う
-    private val billingClient: BillingClient = BillingClient.newBuilder(context)
-        .setListener(purchasesUpdatedListener)
-        .enablePendingPurchases()
-        .build()
+//    private val billingClient: BillingClient = BillingClient.newBuilder(context)
+//        .setListener(purchasesUpdatedListener)
+//        .enablePendingPurchases()
+//        .build()
 
     // BillingClientの接続確認と接続
-    private suspend fun ensureConnected() {
-        if (!billingClient.isReady) {
-            try {
-                billingClient.startConnection(object : BillingClientStateListener {
-                    override fun onBillingSetupFinished(billingResult: BillingResult) {
-                        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                            // 接続成功
-                        } else {
-                            _purchaseResult.value = PurchaseResult.Error("Billing setup failed")
-                        }
-                    }
-
-                    override fun onBillingServiceDisconnected() {
-                        // 再接続のロジック
-                        scope.launch {
-                            ensureConnected()
-                        }
-                    }
-                })
-            } catch (e: Exception) {
-                _purchaseResult.value = PurchaseResult.Error("Connection failed: ${e.message}")
-            }
-        }
-    }
+//    private suspend fun ensureConnected() {
+//        if (!billingClient.isReady) {
+//            try {
+//                billingClient.startConnection(object : BillingClientStateListener {
+//                    override fun onBillingSetupFinished(billingResult: BillingResult) {
+//                        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+//                            // 接続成功
+//                        } else {
+//                            _purchaseResult.value = PurchaseResult.Error("Billing setup failed")
+//                        }
+//                    }
+//
+//                    override fun onBillingServiceDisconnected() {
+//                        // 再接続のロジック
+//                        scope.launch {
+//                            ensureConnected()
+//                        }
+//                    }
+//                })
+//            } catch (e: Exception) {
+//                _purchaseResult.value = PurchaseResult.Error("Connection failed: ${e.message}")
+//            }
+//        }
+//    }
 
     // 商品詳細の取得
-    private suspend fun queryProductDetails(productId: String): ProductDetails? {
-        val params = QueryProductDetailsParams.newBuilder()
-            .setProductList(
-                listOf(
-                    QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(productId)
-                        .setProductType(BillingClient.ProductType.INAPP)
-                        .build()
-                )
-            )
-            .build()
-
-        val result = billingClient.queryProductDetails(params)
-        return result.productDetailsList?.firstOrNull()
-    }
+//    private suspend fun queryProductDetails(productId: String): ProductDetails? {
+//        val params = QueryProductDetailsParams.newBuilder()
+//            .setProductList(
+//                listOf(
+//                    QueryProductDetailsParams.Product.newBuilder()
+//                        .setProductId(productId)
+//                        .setProductType(BillingClient.ProductType.INAPP)
+//                        .build()
+//                )
+//            )
+//            .build()
+//
+//        val result = billingClient.queryProductDetails(params)
+//        return result.productDetailsList?.firstOrNull()
+//    }
 
     // Firebaseで購入を検証
-    private suspend fun verifyPurchaseWithFirebase(purchase: Purchase): Boolean {
-        return firestore.verifyPurchase(
-            purchaseToken = purchase.purchaseToken,
-            productId = purchase.products[0]
-        )
-    }
+//    private suspend fun verifyPurchaseWithFirebase(purchase: Purchase): Boolean {
+//        return firestore.verifyPurchase(
+//            purchaseToken = purchase.purchaseToken,
+//            productId = purchase.products[0]
+//        )
+//    }
 
     @SuppressLint("HardwareIds")
     private suspend fun savePurchaseToFirestore(purchase: Purchase) {
@@ -150,76 +157,76 @@ class BillingRepositoryImpl @Inject constructor(
     }
 
     // 購入の承認
-    private suspend fun acknowledgePurchase(purchaseToken: String) {
-        // suspendで実行するために、suspendCoroutineを使用
-        return suspendCoroutine { continuation ->
-            val params = AcknowledgePurchaseParams.newBuilder()
-                .setPurchaseToken(purchaseToken)
-                .build()
-
-            // acknowledgePurchaseにコールバックを渡す
-            billingClient.acknowledgePurchase(params) { billingResult ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    // 成功時は成功結果を返す
-                    continuation.resume(Unit)
-                } else {
-                    // エラー時は例外を投げる
-                    continuation.resumeWithException(
-                        Exception("Failed to acknowledge purchase: ${billingResult.debugMessage}")
-                    )
-                }
-            }
-        }
-    }
+//    private suspend fun acknowledgePurchase(purchaseToken: String) {
+//        // suspendで実行するために、suspendCoroutineを使用
+//        return suspendCoroutine { continuation ->
+//            val params = AcknowledgePurchaseParams.newBuilder()
+//                .setPurchaseToken(purchaseToken)
+//                .build()
+//
+//            // acknowledgePurchaseにコールバックを渡す
+//            billingClient.acknowledgePurchase(params) { billingResult ->
+//                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+//                    // 成功時は成功結果を返す
+//                    continuation.resume(Unit)
+//                } else {
+//                    // エラー時は例外を投げる
+//                    continuation.resumeWithException(
+//                        Exception("Failed to acknowledge purchase: ${billingResult.debugMessage}")
+//                    )
+//                }
+//            }
+//        }
+//    }
 
     // 購入の処理
-    private suspend fun processPurchases(purchases: List<Purchase>) {
-        for (purchase in purchases) {
-            if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                val isValid = verifyPurchaseWithFirebase(purchase)
-
-                if (isValid) {
-                    savePurchaseToFirestore(purchase)
-
-                    if (!purchase.isAcknowledged) {
-                        acknowledgePurchase(purchase.purchaseToken)
-                    }
-
-                    _purchaseResult.value = PurchaseResult.Success
-                }
-            }
-        }
-    }
+//    private suspend fun processPurchases(purchases: List<Purchase>) {
+//        for (purchase in purchases) {
+//            if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+//                val isValid = verifyPurchaseWithFirebase(purchase)
+//
+//                if (isValid) {
+//                    savePurchaseToFirestore(purchase)
+//
+//                    if (!purchase.isAcknowledged) {
+//                        acknowledgePurchase(purchase.purchaseToken)
+//                    }
+//
+//                    _purchaseResult.value = PurchaseResult.Success
+//                }
+//            }
+//        }
+//    }
 
     // 購入フローを開始する公開メソッド
-    override suspend fun startPurchase(productId: String) {
-        ensureConnected()
-
-        val productDetails = queryProductDetails(productId)
-        if (productDetails == null) {
-            _purchaseResult.value = PurchaseResult.Error("Product not found")
-            return
-        }
-
-        val productDetailsParamsList = listOf(
-            BillingFlowParams.ProductDetailsParams.newBuilder()
-                .setProductDetails(productDetails)
-                .build()
-        )
-
-        val billingFlowParams = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(productDetailsParamsList)
-            .build()
-
-        val activity = context as Activity
-        billingClient.launchBillingFlow(activity, billingFlowParams)
-    }
-
-    // リソースの解放
-    override fun cleanup() {
-        billingClient.endConnection()
-        scope.cancel()
-    }
+//    override suspend fun startPurchase(productId: String) {
+//        ensureConnected()
+//
+//        val productDetails = queryProductDetails(productId)
+//        if (productDetails == null) {
+//            _purchaseResult.value = PurchaseResult.Error("Product not found")
+//            return
+//        }
+//
+//        val productDetailsParamsList = listOf(
+//            BillingFlowParams.ProductDetailsParams.newBuilder()
+//                .setProductDetails(productDetails)
+//                .build()
+//        )
+//
+//        val billingFlowParams = BillingFlowParams.newBuilder()
+//            .setProductDetailsParamsList(productDetailsParamsList)
+//            .build()
+//
+//        val activity = context as Activity
+//        billingClient.launchBillingFlow(activity, billingFlowParams)
+//    }
+//
+//    // リソースの解放
+//    override fun cleanup() {
+//        billingClient.endConnection()
+//        scope.cancel()
+//    }
 
     // 購入結果を表すシールドクラス
     sealed class PurchaseResult {
