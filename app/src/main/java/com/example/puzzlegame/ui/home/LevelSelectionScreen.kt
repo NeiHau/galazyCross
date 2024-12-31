@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
@@ -19,10 +20,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.puzzlegame.data.GameLevels
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,9 +35,24 @@ import com.example.puzzlegame.data.GameLevels
 fun LevelSelectionScreen(
     onLevelSelect: (Int) -> Unit,
     clearedLevels: Set<Int>,
+    viewModel: LevelSelectionViewModel = hiltViewModel()
 ) {
-    // GameLevels.RAW_LEVELSの代わりに、利用可能なレベル数を取得
     val availableLevelCount = GameLevels.getLevelCount()
+    val scrollState by viewModel.scrollState.collectAsState()
+
+    // LazyListStateをrememberで保持
+    val listState = rememberLazyListState()
+
+    // 初期スクロール位置の設定
+    LaunchedEffect(scrollState) {
+        // 保存された位置が0以外の場合のみスクロール位置を復元
+        if (scrollState.index > 0 || scrollState.offset > 0) {
+            listState.scrollToItem(
+                index = scrollState.index,
+                scrollOffset = scrollState.offset
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -47,6 +67,7 @@ fun LevelSelectionScreen(
         }
     ) { paddingValues ->
         LazyColumn(
+            state = listState,  // LazyListStateを設定
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -54,14 +75,11 @@ fun LevelSelectionScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(availableLevelCount) { index ->
-                // 前のレベルをクリアしているかをチェック
                 val isEnabled = if (index == 0) {
-                    true // 最初のレベルは常に有効
+                    true
                 } else {
-                    clearedLevels.contains(index - 1) // 前レベルがクリア済みなら有効
+                    clearedLevels.contains(index - 1)
                 }
-
-                // クリア済みかどうかをチェック
                 val isCleared = clearedLevels.contains(index)
 
                 LevelSelectionItem(

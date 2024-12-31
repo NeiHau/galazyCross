@@ -48,8 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.ui.puzzle.components.GameClearDialog
-import com.example.puzzlegame.ui.puzzle.components.VehicleControl
-import com.example.puzzlegame.ui.puzzle.components.VehicleItem
+import com.example.puzzlegame.ui.puzzle.components.GridItemControl
+import com.example.puzzlegame.ui.puzzle.components.SpaceObjectItem
 import com.example.puzzlegame.ui.puzzle.components.rememberPlanetIcons
 import com.example.rushgame.R
 
@@ -167,15 +167,12 @@ fun PuzzleScreen(
                 ambulanceIcon = ambulanceIcon,
                 planetIcons = planetIcons,
                 onVehicleSelect = { puzzleViewModel.selectVehicle(it) },
-                onVehicleMove = { id, offset -> puzzleViewModel.moveVehicle(id, offset) }
             )
-
-            Spacer(modifier = Modifier.height(66.dp))
-
+            Spacer(modifier = Modifier.height(32.dp))
             // 車両コントロール
-            VehicleControl(
-                vehicle = gameState.selectedVehicleId?.let { selectedId ->
-                    gameState.vehicles.find { it.id == selectedId }
+            GridItemControl(
+                gridItem = gameState.selectedVehicleId?.let { selectedId ->
+                    gameState.gridItems.find { it.id == selectedId }
                 },
                 onMove = { offset ->
                     gameState.selectedVehicleId?.let { selectedId ->
@@ -241,17 +238,15 @@ fun GameBoard(
     ambulanceIcon: Painter,
     planetIcons: List<Painter>,
     onVehicleSelect: (String) -> Unit,
-    onVehicleMove: (String, Offset) -> Unit
 ) {
     Box(modifier = Modifier.size(boardSize)) {
         GridBackground(boardSize)
 
-        gameState.vehicles.forEach { vehicle ->
-            VehicleItem(
-                vehicle = vehicle,
+        gameState.gridItems.forEach { vehicle ->
+            SpaceObjectItem(
+                gridItem = vehicle,
                 isSelected = vehicle.id == gameState.selectedVehicleId,
                 onSelect = { onVehicleSelect(vehicle.id) },
-                onMove = { offset -> onVehicleMove(vehicle.id, offset) },
                 cellSize = boardSize / 6,
                 ambulanceIcon = ambulanceIcon,
                 planetIcons = planetIcons

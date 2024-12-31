@@ -16,12 +16,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.example.puzzlegame.domain.Vehicle
+import com.example.puzzlegame.domain.GridItem
 import com.example.rushgame.R
 
 @Composable
-fun VehicleControl(
-    vehicle: Vehicle?,
+fun GridItemControl(
+    gridItem: GridItem?,
     onMove: (Offset) -> Unit,
 ) {
     val buttonSize = 48.dp
@@ -36,22 +36,21 @@ fun VehicleControl(
         IconButton(
             modifier = Modifier.size(buttonSize),
             onClick = {
-                vehicle?.let { v ->
+                gridItem?.let { v ->
                     val newPosition = Offset(v.position.x, v.position.y - 1)
                     onMove(newPosition)
                 }
             },
-            enabled = vehicle?.let { !it.isHorizontal } ?: false,
+            enabled = gridItem?.let { !it.isHorizontal } ?: false,
         ) {
             Image(
                 modifier = Modifier.size(48.dp),
                 imageVector = ImageVector.vectorResource(R.drawable.ic_round_arrow_up_icon),
                 contentDescription = "上へ移動",
                 colorFilter = ColorFilter.tint(
-                    // 常にWhiteを基本色として使用し、状態に応じて透明度を調整
                     color = when {
-                        vehicle == null -> Color.White.copy(alpha = inactiveIconAlpha)
-                        !vehicle.isHorizontal -> Color.White
+                        gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
+                        !gridItem.isHorizontal -> Color.White
                         else -> Color.White.copy(alpha = inactiveIconAlpha)
                     }
                 )
@@ -65,12 +64,12 @@ fun VehicleControl(
             IconButton(
                 modifier = Modifier.size(buttonSize),
                 onClick = {
-                    vehicle?.let { v ->
+                    gridItem?.let { v ->
                         val newPosition = Offset(v.position.x - 1, v.position.y)
                         onMove(newPosition)
                     }
                 },
-                enabled = vehicle?.let { it.isHorizontal } ?: false,
+                enabled = gridItem?.let { it.isHorizontal } ?: false,
             ) {
                 Image(
                     modifier = Modifier.size(48.dp),
@@ -78,8 +77,8 @@ fun VehicleControl(
                     contentDescription = "左へ移動",
                     colorFilter = ColorFilter.tint(
                         color = when {
-                            vehicle == null -> Color.White.copy(alpha = inactiveIconAlpha)
-                            vehicle.isHorizontal -> Color.White
+                            gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
+                            gridItem.isHorizontal -> Color.White
                             else -> Color.White.copy(alpha = inactiveIconAlpha)
                         }
                     )
@@ -90,12 +89,12 @@ fun VehicleControl(
             IconButton(
                 modifier = Modifier.size(buttonSize),
                 onClick = {
-                    vehicle?.let { v ->
+                    gridItem?.let { v ->
                         val newPosition = Offset(v.position.x + 1, v.position.y)
                         onMove(newPosition)
                     }
                 },
-                enabled = vehicle?.isHorizontal ?: false,
+                enabled = gridItem?.isHorizontal ?: false,
             ) {
                 Image(
                     modifier = Modifier.size(48.dp),
@@ -103,8 +102,8 @@ fun VehicleControl(
                     contentDescription = "右へ移動",
                     colorFilter = ColorFilter.tint(
                         color = when {
-                            vehicle == null -> Color.White.copy(alpha = inactiveIconAlpha)
-                            vehicle.isHorizontal -> Color.White
+                            gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
+                            gridItem.isHorizontal -> Color.White
                             else -> Color.White.copy(alpha = inactiveIconAlpha)
                         }
                     )
@@ -116,12 +115,12 @@ fun VehicleControl(
         IconButton(
             modifier = Modifier.size(buttonSize),
             onClick = {
-                vehicle?.let { v ->
+                gridItem?.let { v ->
                     val newPosition = Offset(v.position.x, v.position.y + 1)
                     onMove(newPosition)
                 }
             },
-            enabled = vehicle?.let { !it.isHorizontal } ?: false,
+            enabled = gridItem?.let { !it.isHorizontal } ?: false,
         ) {
             Image(
                 modifier = Modifier.size(48.dp),
@@ -129,8 +128,8 @@ fun VehicleControl(
                 contentDescription = "下へ移動",
                 colorFilter = ColorFilter.tint(
                     color = when {
-                        vehicle == null -> Color.White.copy(alpha = inactiveIconAlpha)
-                        !vehicle.isHorizontal -> Color.White
+                        gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
+                        !gridItem.isHorizontal -> Color.White
                         else -> Color.White.copy(alpha = inactiveIconAlpha)
                     }
                 )

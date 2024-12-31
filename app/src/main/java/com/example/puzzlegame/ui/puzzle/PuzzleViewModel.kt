@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.puzzlegame.data.GameLevels
 import com.example.puzzlegame.domain.GameState
-import com.example.puzzlegame.domain.Vehicle
+import com.example.puzzlegame.domain.GridItem
 import com.example.puzzlegame.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +42,7 @@ class PuzzleViewModel @Inject constructor(
 
         _gameState.update { currentState ->
             currentState.copy(
-                vehicles = vehicles,
+                gridItems = vehicles,
                 selectedVehicleId = null,
                 isGameComplete = false
             )
@@ -58,12 +58,12 @@ class PuzzleViewModel @Inject constructor(
     fun moveVehicle(id: String, newPosition: Offset) {
         viewModelScope.launch {
             val currentState = _gameState.value
-            val vehicle = currentState.vehicles.find { it.id == id } ?: return@launch
+            val vehicle = currentState.gridItems.find { it.id == id } ?: return@launch
 
-            if (!isValidPosition(vehicle, newPosition, currentState.vehicles)) return@launch
+            if (!isValidPosition(vehicle, newPosition, currentState.gridItems)) return@launch
 
             val stateWithMovedVehicle = currentState.copy(
-                vehicles = currentState.vehicles.map { v ->
+                gridItems = currentState.gridItems.map { v ->
                     if (v.id == id) {
                         v.copy(
                             position = newPosition.copy(
@@ -91,7 +91,7 @@ class PuzzleViewModel @Inject constructor(
     }
 
     private fun checkWin(state: GameState): GameState {
-        val targetVehicle = state.vehicles.find { it.isTarget }
+        val targetVehicle = state.gridItems.find { it.isTarget }
         // 勝利条件を垂直方向の最上部到達に変更
         val isWin = targetVehicle?.position?.y == 0f
 
@@ -104,13 +104,13 @@ class PuzzleViewModel @Inject constructor(
         }
     }
 
-    private fun isValidPosition(vehicle: Vehicle, newPosition: Offset, vehicles: List<Vehicle>): Boolean {
-        val vehicleBounds = if (vehicle.isHorizontal) {
-            (newPosition.x.toInt() until (newPosition.x + vehicle.length).toInt()).map { x ->
+    private fun isValidPosition(gridItem: GridItem, newPosition: Offset, gridItems: List<GridItem>): Boolean {
+        val vehicleBounds = if (gridItem.isHorizontal) {
+            (newPosition.x.toInt() until (newPosition.x + gridItem.length).toInt()).map { x ->
                 Pair(x, newPosition.y.toInt())
             }
         } else {
-            (newPosition.y.toInt() until (newPosition.y + vehicle.length).toInt()).map { y ->
+            (newPosition.y.toInt() until (newPosition.y + gridItem.length).toInt()).map { y ->
                 Pair(newPosition.x.toInt(), y)
             }
         }
@@ -119,7 +119,7 @@ class PuzzleViewModel @Inject constructor(
             return false
         }
 
-        val otherVehiclesBounds = vehicles.filter { it.id != vehicle.id }.flatMap { otherVehicle ->
+        val otherVehiclesBounds = gridItems.filter { it.id != gridItem.id }.flatMap { otherVehicle ->
             if (otherVehicle.isHorizontal) {
                 (otherVehicle.position.x.toInt() until (otherVehicle.position.x + otherVehicle.length).toInt()).map { x ->
                     Pair(x, otherVehicle.position.y.toInt())
