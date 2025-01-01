@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "rushgame"
+rootProject.name = "galaxycross"
 include(":app")
  

@@ -9,6 +9,10 @@ interface GameRepository {
     suspend fun addClearedLevel(level: Int)
     val isTutorialCompletedFlow: Flow<Boolean>
     suspend fun completeTutorial()
+    val tutorialStepFlow: Flow<ClearedLevelsDataStore.TutorialStep>
+    suspend fun updateTutorialStep(step: ClearedLevelsDataStore.TutorialStep)
+    val isTutorialSeenFlow: Flow<Boolean>
+    suspend fun markTutorialAsSeen()
 }
 
 class GameRepositoryImpl @Inject constructor(
@@ -22,5 +26,17 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun completeTutorial() {
         clearedLevelsDataStore.completeTutorial()
+    }
+
+    override val tutorialStepFlow = clearedLevelsDataStore.tutorialStep
+
+    override suspend fun updateTutorialStep(step: ClearedLevelsDataStore.TutorialStep) {
+        clearedLevelsDataStore.updateTutorialStep(step)
+    }
+
+    override val isTutorialSeenFlow = clearedLevelsDataStore.isTutorialSeen
+
+    override suspend fun markTutorialAsSeen() {
+        clearedLevelsDataStore.markTutorialAsSeen()
     }
 }
