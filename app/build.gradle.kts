@@ -97,4 +97,6 @@ dependencies {
 
     // 3. Firebase以外の依存関係
     implementation(libs.billing.ktx)
+
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
 }

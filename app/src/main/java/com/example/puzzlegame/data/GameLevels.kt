@@ -44,10 +44,16 @@ object GameLevels {
         ),
         GridItem(
             id = "2",
-            position = Offset(4f, 3f),
-            length = 2,
+            position = Offset(2f, 3f),
+            length = 3,
             isHorizontal = true
-        )
+        ),
+        GridItem(
+            id = "3",
+            position = Offset(1f, 0f),
+            length = 3,
+            isHorizontal = false,
+        ),
     ))
 
     val LEVELS = listOf(
@@ -478,7 +484,7 @@ object GameLevels {
             GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
         )),
 
-        // レベル21 まだ
+        // レベル26 まだ
         assignPlanetIcons(listOf(
             GridItem(id = "target", position = Offset(1f, 2f), length = 2, isHorizontal = true,
                 isTarget = true),
@@ -497,7 +503,7 @@ object GameLevels {
             GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
         )),
 
-        // レベル22 まだ
+        // レベル27 まだ
         assignPlanetIcons(listOf(
             GridItem(id = "target", position = Offset(1f, 2f), length = 2, isHorizontal = true,
                 isTarget = true),
@@ -516,7 +522,7 @@ object GameLevels {
             GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
         )),
 
-        // レベル23 まだ
+        // レベル28 まだ
         assignPlanetIcons(listOf(
             GridItem(id = "target", position = Offset(1f, 2f), length = 2, isHorizontal = true,
                 isTarget = true),
@@ -535,7 +541,7 @@ object GameLevels {
             GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
         )),
 
-        // レベル24 まだ
+        // レベル29 まだ
         assignPlanetIcons(listOf(
             GridItem(id = "target", position = Offset(1f, 2f), length = 2, isHorizontal = true,
                 isTarget = true),
@@ -554,7 +560,7 @@ object GameLevels {
             GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
         )),
 
-        // レベル25 まだ
+        // レベル30 まだ
         assignPlanetIcons(listOf(
             GridItem(id = "target", position = Offset(1f, 2f), length = 2, isHorizontal = true,
                 isTarget = true),

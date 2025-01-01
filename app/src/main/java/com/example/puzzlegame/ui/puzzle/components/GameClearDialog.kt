@@ -16,6 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+// チュートリアルレベルのインデックスを定義
+const val TUTORIAL_LEVEL_INDEX = -1
+
 @Composable
 fun GameClearDialog(
     currentLevel: Int,
@@ -24,12 +27,22 @@ fun GameClearDialog(
     onNextLevel: () -> Unit,
     onShowLevelSelection: () -> Unit
 ) {
-    // クリア時のダイアログをカスタマイズしたAlertDialogで表示します
-    AlertDialog(
-        // ダイアログの外側をタップしても閉じない設定
-        onDismissRequest = { /* ダイアログを閉じないようにする */ },
+    // ダイアログのタイトルとサブタイトルを条件に応じて変更
+    val dialogTitle = if (currentLevel == TUTORIAL_LEVEL_INDEX) {
+        "チュートリアル完了！"
+    } else {
+        "ゲームクリア！"
+    }
 
-        // ダイアログのタイトル部分
+    val dialogSubtitle = if (currentLevel == TUTORIAL_LEVEL_INDEX) {
+        ""
+    } else {
+        "レベル${currentLevel + 1}完了"
+    }
+
+    AlertDialog(
+        modifier = Modifier.fillMaxWidth(),
+        onDismissRequest = { /* ダイアログを閉じないようにする */ },
         title = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -37,31 +50,33 @@ fun GameClearDialog(
             ) {
                 // お祝いのメッセージを表示
                 Text(
-                    text = "ゲームクリア！",
+                    text = dialogTitle,
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center
                 )
 
-                // 現在のレベルを表示
+                // 現在のレベルを表示（チュートリアルの場合は異なるテキスト）
                 Text(
-                    text = "レベル${currentLevel + 1}完了",
+                    text = dialogSubtitle,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
         },
-
-        // ダイアログの本文
         text = {
+            val dialogMessage = if (currentLevel == TUTORIAL_LEVEL_INDEX) {
+                "次に進みましょう。"
+            } else {
+                "宇宙船がゴールに到達しました！\n次はどうしますか？"
+            }
+
             Text(
-                text = "赤い車を出口まで移動させました！\n次はどうしますか？",
+                text = dialogMessage,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
         },
-
-        // ボタン群の配置
         confirmButton = {
             // ボタンを縦に配置するためのColumn
             Column(
@@ -70,13 +85,13 @@ fun GameClearDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // 次のレベルへ進むボタン（最終レベル以外で表示）
-                if (hasNextLevel) {
+                // 次のレベルへ進むボタン（最終レベル以外で表示、チュートリアルも次に進める）
+                if (hasNextLevel || currentLevel == TUTORIAL_LEVEL_INDEX) {
                     Button(
                         onClick = onNextLevel,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("次のレベルへ")
+                        Text("次のステージへ")
                     }
                 }
 
@@ -100,13 +115,6 @@ fun GameClearDialog(
                 }
             }
         },
-
-        // ダイアログ全体のスタイリング
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-
-        // ダイアログの形状をカスタマイズ
         shape = MaterialTheme.shapes.medium
     )
 }

@@ -110,6 +110,7 @@ fun AppNavigation(
         ) { backStackEntry ->
             val levelIndex = backStackEntry.arguments?.getInt("levelIndex") ?: 0
             PuzzleScreen(
+                isTutorialCompleted = isTutorialCompleted,
                 levelIndex = levelIndex,
                 onLevelCleared = { clearedLevel ->
                     if (clearedLevel == GameLevels.TUTORIAL_LEVEL_INDEX) {
