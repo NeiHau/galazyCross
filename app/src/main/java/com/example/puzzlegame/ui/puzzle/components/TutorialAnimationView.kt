@@ -15,7 +15,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
-fun LottieAnimationView(
+fun TutorialAnimationView(
     modifier: Modifier = Modifier
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("tutorial_lottie.json"))
@@ -43,6 +43,6 @@ fun LottieAnimationView(
 
 @Preview(showBackground = true)
 @Composable
-fun LottieAnimationPreview() {
-    LottieAnimationView()
+fun TutorialAnimationViewPreview() {
+    TutorialAnimationView()
 }

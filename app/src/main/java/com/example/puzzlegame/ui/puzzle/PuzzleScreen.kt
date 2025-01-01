@@ -64,7 +64,7 @@ import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.ui.puzzle.components.GameClearDialog
 import com.example.puzzlegame.ui.puzzle.components.GridItemControl
-import com.example.puzzlegame.ui.puzzle.components.LottieAnimationView
+import com.example.puzzlegame.ui.puzzle.components.TutorialAnimationView
 import com.example.puzzlegame.ui.puzzle.components.SpaceObjectItem
 import com.example.puzzlegame.ui.puzzle.components.rememberPlanetIcons
 import kotlin.math.roundToInt
@@ -407,7 +407,7 @@ fun TutorialDialog(
                         ),
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
-                    LottieAnimationView(
+                    TutorialAnimationView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(screenHeight * 0.45f)
