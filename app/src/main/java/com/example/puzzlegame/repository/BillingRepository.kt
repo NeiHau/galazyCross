@@ -1,7 +1,6 @@
 package com.example.puzzlegame.repository
 
 import android.app.Activity
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -21,7 +20,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,21 +28,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-// BillingRepository.kt
 interface BillingRepository {
-    // 購入状態を表すStateFlow
-    val purchaseState: StateFlow<Boolean>
-
-    // 購入結果を表すLiveData
-    val purchaseResult: LiveData<PurchaseResult>
-
-    // 課金フローを開始する
+    fun getPurchaseState(): StateFlow<Boolean>
+    fun getPurchaseResult(): LiveData<PurchaseResult>
     fun launchBillingFlow(activity: Activity)
-
-    // プレミアム購入状態を確認する
     suspend fun isPremiumPurchased(): Boolean
 
-    // シール型クラスで購入結果を表現
     sealed class PurchaseResult {
         data object Success : PurchaseResult()
         data object Canceled : PurchaseResult()
@@ -52,25 +41,26 @@ interface BillingRepository {
     }
 }
 
+
 class BillingRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val billingDataStore: BillingDataStore, // BillingDataStore を注入
+    private val billingDataStore: BillingDataStore,
 ) : BillingRepository, PurchasesUpdatedListener {
 
     companion object {
         private const val PRODUCT_ID = "product_1"
+        private const val TAG = "BillingRepositoryImpl"
     }
 
     private var billingClient: BillingClient? = null
 
     private val _purchaseState = MutableStateFlow(false)
-    override val purchaseState: StateFlow<Boolean> = _purchaseState.asStateFlow()
+    override fun getPurchaseState(): StateFlow<Boolean> = _purchaseState.asStateFlow()
 
     private val _purchaseResult = MutableLiveData<BillingRepository.PurchaseResult>()
-    override val purchaseResult: LiveData<BillingRepository.PurchaseResult> = _purchaseResult
+    override fun getPurchaseResult(): LiveData<BillingRepository.PurchaseResult> = _purchaseResult
 
-    // 独自の CoroutineScope を定義
-    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // BillingClientの接続状態を追跡するフラグ
     private val _isBillingClientReady = MutableStateFlow(false)
@@ -78,8 +68,8 @@ class BillingRepositoryImpl @Inject constructor(
 
     init {
         initBillingClient()
-        // 購入状態をBillingDataStoreから取得して設定
-        repositoryScope.launch {
+
+        coroutineScope.launch {
             billingDataStore.isPremiumPurchased.collect { isPurchased ->
                 _purchaseState.emit(isPurchased)
             }
@@ -123,15 +113,15 @@ class BillingRepositoryImpl @Inject constructor(
     ) {
         // 詳細なログを追加
         Log.d(TAG, """
-        Purchase Update Details:
-        Response Code: ${billingResult.responseCode}
-        Debug Message: ${billingResult.debugMessage}
-        Response Code Name: ${getBillingResponseCodeName(billingResult.responseCode)}
-        Purchases Size: ${purchases?.size}
-        Purchase Details: ${purchases?.joinToString { purchase ->
+            Purchase Update Details:
+            Response Code: ${billingResult.responseCode}
+            Debug Message: ${billingResult.debugMessage}
+            Response Code Name: ${getBillingResponseCodeName(billingResult.responseCode)}
+            Purchases Size: ${purchases?.size}
+            Purchase Details: ${purchases?.joinToString { purchase ->
             "OrderId: ${purchase.orderId}, State: ${purchase.purchaseState}"
         }}
-    """.trimIndent())
+        """.trimIndent())
 
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (purchase in purchases) {
@@ -171,8 +161,7 @@ class BillingRepositoryImpl @Inject constructor(
 
                 billingClient?.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        // 購入情報をBillingDataStoreに保存
-                        repositoryScope.launch {
+                        coroutineScope.launch {
                             purchase.orderId?.let {
                                 billingDataStore.savePurchaseInfo(
                                     purchaseToken = purchase.purchaseToken,
@@ -189,8 +178,7 @@ class BillingRepositoryImpl @Inject constructor(
                     }
                 }
             } else {
-                // 既に承認済みの場合も同様に保存
-                repositoryScope.launch {
+                coroutineScope.launch {
                     billingDataStore.setPremiumPurchased(true)
                     _purchaseResult.postValue(BillingRepository.PurchaseResult.Success)
                 }
@@ -221,7 +209,7 @@ class BillingRepositoryImpl @Inject constructor(
     }
 
     override fun launchBillingFlow(activity: Activity) {
-        repositoryScope.launch {
+        coroutineScope.launch {
             Log.d(TAG, "Starting launchBillingFlow, BillingClient ready: ${isBillingClientReady.first()}")
             if (!isBillingClientReady.first()) {
                 Log.e(TAG, "BillingClient is not ready")
@@ -286,13 +274,5 @@ class BillingRepositoryImpl @Inject constructor(
             }
         }
     }
-
-    /**
-     * リポジトリが不要になった際に呼び出してスコープをキャンセルします。
-     * 例: アプリケーションの終了時など。
-     */
-    fun close() {
-        repositoryScope.cancel()
-        billingClient?.endConnection()
-    }
 }
+

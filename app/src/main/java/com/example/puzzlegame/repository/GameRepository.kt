@@ -5,38 +5,26 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface GameRepository {
-    val clearedLevelsFlow: Flow<Set<Int>>
+    fun getClearedLevelsFlow(): Flow<Set<Int>>
     suspend fun addClearedLevel(level: Int)
-    val isTutorialCompletedFlow: Flow<Boolean>
+    fun getIsTutorialCompletedFlow(): Flow<Boolean>
     suspend fun completeTutorial()
-    val tutorialStepFlow: Flow<ClearedLevelsDataStore.TutorialStep>
-    suspend fun updateTutorialStep(step: ClearedLevelsDataStore.TutorialStep)
-    val isTutorialSeenFlow: Flow<Boolean>
-    suspend fun markTutorialAsSeen()
 }
+
 
 class GameRepositoryImpl @Inject constructor(
     private val clearedLevelsDataStore: ClearedLevelsDataStore
 ) : GameRepository {
-    override val clearedLevelsFlow get() = clearedLevelsDataStore.clearedLevels
+
+    override fun getClearedLevelsFlow(): Flow<Set<Int>> = clearedLevelsDataStore.clearedLevels
+
     override suspend fun addClearedLevel(level: Int) {
         clearedLevelsDataStore.addClearedLevel(level)
     }
-    override val isTutorialCompletedFlow: Flow<Boolean> = clearedLevelsDataStore.isTutorialCompleted
+
+    override fun getIsTutorialCompletedFlow(): Flow<Boolean> = clearedLevelsDataStore.isTutorialCompleted
 
     override suspend fun completeTutorial() {
         clearedLevelsDataStore.completeTutorial()
-    }
-
-    override val tutorialStepFlow = clearedLevelsDataStore.tutorialStep
-
-    override suspend fun updateTutorialStep(step: ClearedLevelsDataStore.TutorialStep) {
-        clearedLevelsDataStore.updateTutorialStep(step)
-    }
-
-    override val isTutorialSeenFlow = clearedLevelsDataStore.isTutorialSeen
-
-    override suspend fun markTutorialAsSeen() {
-        clearedLevelsDataStore.markTutorialAsSeen()
     }
 }

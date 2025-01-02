@@ -28,11 +28,11 @@ class PuzzleViewModel @Inject constructor(
     // 現在のレベルを追跡するための変数を追加
     private var currentLevel: Int = 0
 
-    val clearedLevels: StateFlow<Set<Int>> = gameRepository.clearedLevelsFlow
+    val clearedLevels: StateFlow<Set<Int>> = gameRepository.getClearedLevelsFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     // チュートリアル完了状態
-    val isTutorialCompleted: StateFlow<Boolean> = gameRepository.isTutorialCompletedFlow
+    val isTutorialCompleted: StateFlow<Boolean> = gameRepository.getIsTutorialCompletedFlow()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,

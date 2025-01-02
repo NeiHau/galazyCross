@@ -19,13 +19,11 @@ fun TutorialAnimationView(
     modifier: Modifier = Modifier
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("tutorial_lottie.json"))
-
     val progress by animateLottieCompositionAsState(
         composition,
         iterations = LottieConstants.IterateForever
     )
 
-    // アニメーションを表示
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

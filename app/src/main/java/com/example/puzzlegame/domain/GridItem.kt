@@ -2,7 +2,6 @@ package com.example.puzzlegame.domain
 
 import androidx.compose.ui.geometry.Offset
 
-// 車両を表すデータクラス - イミュータブルなデータモデル
 data class GridItem(
     val id: String,
     val position: Offset,

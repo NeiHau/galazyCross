@@ -22,12 +22,9 @@ object GameLevels {
         }
     }
 
-    // チュートリアル用の定数
-    const val TUTORIAL_LEVEL_INDEX = -1 // 通常のレベルとは異なるインデックスを使用
+    const val TUTORIAL_LEVEL_INDEX = -1
 
-    // チュートリアルレベルの定義
     private val TUTORIAL_LEVEL = assignPlanetIcons(listOf(
-        // ターゲットとなる宇宙船（上下移動のみ必要な簡単な配置）
         GridItem(
             id = "0",
             position = Offset(2f, 4f),
@@ -35,7 +32,6 @@ object GameLevels {
             isHorizontal = false,
             isTarget = true
         ),
-        // 邪魔になる惑星は最小限に
         GridItem(
             id = "1",
             position = Offset(2f, 2f),
@@ -591,21 +587,16 @@ object GameLevels {
      * @throws IllegalArgumentException レベルインデックスが範囲外の場合
      */
     fun getRandomizedLevel(levelIndex: Int): List<GridItem> {
-        // チュートリアルレベルの場合は、そのまま返す（ランダム化しない）
         if (levelIndex == TUTORIAL_LEVEL_INDEX) {
             return TUTORIAL_LEVEL
         }
 
-        // 通常レベルの場合は、インデックスの有効性を確認
         require(levelIndex in LEVELS.indices) {
             "Invalid level index: $levelIndex. Available levels: 0..${LEVELS.size - 1}"
         }
 
-        // 通常レベルのデータを取得
         val levelData = LEVELS[levelIndex]
 
-        // 現状では単純に返すだけですが、将来的にランダム化ロジックを追加する場合に
-        // チュートリアルレベルは除外されるようになっています
         return levelData
     }
 }
