@@ -1,20 +1,48 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.google.dagger.hilt.android")  // versionは上で適用済みのため不要
+    id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     kotlin("kapt")
 }
 
+fun getEnvProperty(key: String): String? {
+    val properties = Properties()
+    val envFile = rootProject.file(".env")
+
+    return try {
+        if (envFile.exists()) {
+            envFile.inputStream().use { stream ->
+                properties.load(stream)
+                properties.getProperty(key)
+            }
+        } else {
+            System.getenv(key)
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
 android {
+    signingConfigs {
+        create("release") {
+            keyAlias = getEnvProperty("RELEASE_KEY_ALIAS") ?: ""
+            keyPassword = getEnvProperty("RELEASE_KEY_PASSWORD") ?: ""
+            storePassword = getEnvProperty("RELEASE_STORE_PASSWORD") ?: ""
+            storeFile = file(getEnvProperty("RELEASE_STORE_FILE") ?: "")
+        }
+    }
     namespace = "com.example.galaxycross"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.galaxycross"
+        applicationId = "com.hakutogames.galaxycross"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -99,4 +127,13 @@ dependencies {
     implementation(libs.billing.ktx)
 
     implementation("com.airbnb.android:lottie-compose:6.0.0")
+
+    // Lifecycle components
+    val lifecycle_version = "2.7.0"
+
+    // LiveData
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
+    kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
 }

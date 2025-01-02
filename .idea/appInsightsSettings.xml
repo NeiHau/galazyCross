@@ -8,7 +8,7 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.galaxycross" />
+                  <option name="appId" value="com.hakutogames.galaxycross" />
                   <option name="mobileSdkAppId" value="1:600640323055:android:4d6b54dd0b2a70c66a0a1a" />
                   <option name="projectId" value="galaxycross-24704" />
                   <option name="projectNumber" value="600640323055" />

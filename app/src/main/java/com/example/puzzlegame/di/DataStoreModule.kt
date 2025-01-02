@@ -1,6 +1,7 @@
 package com.example.puzzlegame.di
 
 import android.content.Context
+import com.example.puzzlegame.local.db.BillingDataStore
 import com.example.puzzlegame.local.db.ClearedLevelsDataStore
 import dagger.Module
 import dagger.Provides
@@ -20,5 +21,13 @@ object DataStoreModule {
         @ApplicationContext context: Context
     ): ClearedLevelsDataStore {
         return ClearedLevelsDataStore(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBillingDataStore(
+        @ApplicationContext context: Context
+    ): BillingDataStore {
+        return BillingDataStore(context)
     }
 }

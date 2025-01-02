@@ -2,7 +2,6 @@ package com.example.puzzlegame.ui
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -13,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.puzzlegame.data.GameLevels
-import com.example.puzzlegame.repository.BillingRepositoryImpl
 import com.example.puzzlegame.ui.home.LevelSelectionScreen
 import com.example.puzzlegame.ui.home.LevelSelectionViewModel
 import com.example.puzzlegame.ui.puzzle.PuzzleScreen
@@ -76,7 +74,6 @@ fun AppNavigation(
             LevelSelectionScreen(
                 clearedLevels = clearedLevels,
                 isTutorialCompleted = isTutorialCompleted,
-                isPremiumPurchased = isPremiumPurchased,
                 onTutorialSelect = {
                     puzzleViewModel.initializeGame(GameLevels.TUTORIAL_LEVEL_INDEX)
                     navController.navigate(Screen.Game.createRoute(GameLevels.TUTORIAL_LEVEL_INDEX))
@@ -96,9 +93,6 @@ fun AppNavigation(
                         }
                     }
                 },
-                onPremiumPurchase = {
-//                    levelSelectionViewModel.startPremiumPurchase()
-                }
             )
         }
 

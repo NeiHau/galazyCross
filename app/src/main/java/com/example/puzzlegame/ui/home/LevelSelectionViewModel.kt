@@ -1,72 +1,77 @@
 package com.example.puzzlegame.ui.home
 
+import android.app.Activity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.puzzlegame.repository.BillingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LevelSelectionViewModel @Inject constructor(
-//    private val billingRepository: BillingRepository,
+    private val billingRepository: BillingRepository,
 ) : ViewModel() {
-    // スクロール状態を保持するための状態
+
+    // State to hold scroll information
     private val _scrollState = MutableStateFlow(ScrollState())
-    val scrollState = _scrollState.asStateFlow()
+    val scrollState: StateFlow<ScrollState> = _scrollState.asStateFlow()
 
-    // 課金状態の管理を追加
+    // State to hold premium purchase status
     private val _isPremiumPurchased = MutableStateFlow(false)
-    val isPremiumPurchased = _isPremiumPurchased.asStateFlow()
+    val isPremiumPurchased: StateFlow<Boolean> = _isPremiumPurchased.asStateFlow()
 
-    // 課金処理の結果を公開
-//    val purchaseResult = billingRepository.purchaseResult
+    // Expose purchase result from BillingRepository
+    val purchaseResult: LiveData<BillingRepository.PurchaseResult> = billingRepository.purchaseResult
 
     init {
         viewModelScope.launch {
-            checkPremiumStatus()
+            // Observe purchase state from BillingRepository
+            billingRepository.purchaseState.collect { isPurchased ->
+                _isPremiumPurchased.value = isPurchased
+            }
         }
     }
 
-    // プレミアムコンテンツの購入を開始
-//    fun startPremiumPurchase() {
-//        viewModelScope.launch {
-//            billingRepository.startPurchase(PREMIUM_PRODUCT_ID)
-//        }
-//    }
+    /**
+     * Initiates the purchase flow for the premium product.
+     * The Activity context must be provided to launch the billing flow.
+     *
+     * @param activity The current Activity context.
+     */
+    fun startPremiumPurchase(activity: Activity) {
+        viewModelScope.launch {
+            billingRepository.launchBillingFlow(activity)
+        }
+    }
 
+    /**
+     * Optionally, check premium status from a remote source like Firestore.
+     * This can be combined with local purchase state for enhanced reliability.
+     */
     private suspend fun checkPremiumStatus() {
         try {
-            // Firestoreから課金状態を取得する処理
-            // この実装は環境に応じて適切に実装する必要があります
+            // Example: Fetch premium status from Firestore or another backend service
+            // val isPremium = firestoreRepository.isUserPremium(userId)
+            // _isPremiumPurchased.value = isPremium
 
-            // 例: Firestoreのユーザードキュメントから課金状態を確認
-            // val userDoc = firestore.collection("users").document(userId).get().await()
-            // _isPremiumPurchased.value = userDoc.getBoolean("isPremium") ?: false
+            // For demonstration, we'll rely on local purchase state
+            _isPremiumPurchased.value = billingRepository.isPremiumPurchased()
         } catch (e: Exception) {
-            // エラー処理
+            // Handle exceptions, possibly by logging or updating UI state
         }
     }
 
-//    override fun onCleared() {
-//        super.onCleared()
-//        billingRepository.cleanup()
-//    }
-
-    // スクロール状態を更新する関数
+    // Function to update scroll state
     fun updateScrollState(index: Int, offset: Int) {
         _scrollState.value = ScrollState(index, offset)
     }
 
-    // スクロール状態を包括的に管理するデータクラス
+    // Data class to represent scroll state
     data class ScrollState(
         val index: Int = 0,
         val offset: Int = 0
     )
-
-    companion object {
-        private const val PREMIUM_PRODUCT_ID = "premium_levels"
-    }
 }

@@ -1,5 +1,8 @@
 package com.example.puzzlegame.ui.home
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,18 +23,26 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.puzzlegame.data.GameLevels
+import com.example.puzzlegame.repository.BillingRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,13 +51,35 @@ fun LevelSelectionScreen(
     clearedLevels: Set<Int>,
     isTutorialCompleted: Boolean,
     onTutorialSelect: () -> Unit,
-    isPremiumPurchased: Boolean, // 課金状態を追加
-    onPremiumPurchase: () -> Unit, // 課金処理用のコールバック
     viewModel: LevelSelectionViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val availableLevelCount = GameLevels.getLevelCount()
-    val scrollState by viewModel.scrollState.collectAsState()
+    val scrollState by viewModel.scrollState.collectAsState(LevelSelectionViewModel.ScrollState())
+    val isPremiumPurchased by viewModel.isPremiumPurchased.collectAsState(false)
+    val purchaseResult by viewModel.purchaseResult.observeAsState()
+    val scope = rememberCoroutineScope()
+
     val listState = rememberLazyListState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Handle purchase results
+    LaunchedEffect(purchaseResult) {
+        when (purchaseResult) {
+            is BillingRepository.PurchaseResult.Success -> {
+                snackbarHostState.showSnackbar("プレミアム機能が解除されました")
+            }
+            is BillingRepository.PurchaseResult.Error -> {
+                snackbarHostState.showSnackbar(
+                    "購入処理に失敗しました: ${(purchaseResult as BillingRepository.PurchaseResult.Error).message}"
+                )
+            }
+            is BillingRepository.PurchaseResult.Canceled -> {
+                snackbarHostState.showSnackbar("購入がキャンセルされました")
+            }
+            null -> { /* Initial state, do nothing */ }
+        }
+    }
 
     LaunchedEffect(scrollState) {
         if (scrollState.index > 0 || scrollState.offset > 0) {
@@ -67,7 +100,8 @@ fun LevelSelectionScreen(
                     )
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -102,7 +136,15 @@ fun LevelSelectionScreen(
                         requiresPremium = requiresPremium,
                         onClick = {
                             if (requiresPremium) {
-                                onPremiumPurchase()
+                                // Get Activity reference and launch billing flow
+                                val activity = context.findActivity()
+                                if (activity != null) {
+                                    viewModel.startPremiumPurchase(activity)
+                                } else {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("購入処理を開始できませんでした")
+                                    }
+                                }
                             } else {
                                 onLevelSelect(index)
                             }
@@ -112,6 +154,18 @@ fun LevelSelectionScreen(
             }
         }
     }
+}
+
+// Extension function to safely get Activity from Context
+fun Context.findActivity(): Activity? {
+    var currentContext = this
+    while (currentContext is ContextWrapper) {
+        if (currentContext is Activity) {
+            return currentContext
+        }
+        currentContext = currentContext.baseContext
+    }
+    return null
 }
 
 @Composable
