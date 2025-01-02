@@ -43,23 +43,6 @@ class LevelSelectionViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Optionally, check premium status from a remote source like Firestore.
-     * This can be combined with local purchase state for enhanced reliability.
-     */
-    private suspend fun checkPremiumStatus() {
-        try {
-            // Example: Fetch premium status from Firestore or another backend service
-            // val isPremium = firestoreRepository.isUserPremium(userId)
-            // _isPremiumPurchased.value = isPremium
-
-            // For demonstration, we'll rely on local purchase state
-            _isPremiumPurchased.value = billingRepository.isPremiumPurchased()
-        } catch (e: Exception) {
-            // Handle exceptions, possibly by logging or updating UI state
-        }
-    }
-
     data class ScrollState(
         val index: Int = 0,
         val offset: Int = 0

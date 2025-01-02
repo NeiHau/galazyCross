@@ -6,8 +6,8 @@ import javax.inject.Inject
 
 interface GameRepository {
     fun getClearedLevelsFlow(): Flow<Set<Int>>
-    suspend fun addClearedLevel(level: Int)
     fun getIsTutorialCompletedFlow(): Flow<Boolean>
+    suspend fun addClearedLevel(level: Int)
     suspend fun completeTutorial()
 }
 
@@ -18,11 +18,11 @@ class GameRepositoryImpl @Inject constructor(
 
     override fun getClearedLevelsFlow(): Flow<Set<Int>> = clearedLevelsDataStore.clearedLevels
 
+    override fun getIsTutorialCompletedFlow(): Flow<Boolean> = clearedLevelsDataStore.isTutorialCompleted
+
     override suspend fun addClearedLevel(level: Int) {
         clearedLevelsDataStore.addClearedLevel(level)
     }
-
-    override fun getIsTutorialCompletedFlow(): Flow<Boolean> = clearedLevelsDataStore.isTutorialCompleted
 
     override suspend fun completeTutorial() {
         clearedLevelsDataStore.completeTutorial()
