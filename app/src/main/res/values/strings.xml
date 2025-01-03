@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">GalaxyCross</string>
+
+    <string name="premium_unlock">プレミアム機能が解除されました</string>
+    <string name="premium_failure">購入処理に失敗しました</string>
+    <string name="premium_cancel">購入がキャンセルされました</string>
+    <string name="premium_cannot_start_buy_process">購入処理を開始できませんでした</string>
+
+    <string name="level_selection_appbar_title">レベル選択</string>
+    <string name="level_selection_appbar_icon_contentDescription">設定</string>
+
 </resources>

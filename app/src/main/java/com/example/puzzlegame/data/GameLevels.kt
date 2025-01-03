@@ -7,11 +7,11 @@ object GameLevels {
     private fun assignPlanetIcons(gridItems: List<GridItem>): List<GridItem> {
         var currentPlanetIndex = 1
 
-        return gridItems.map { vehicle ->
-            if (vehicle.isTarget) {
-                vehicle
+        return gridItems.map { gridItem ->
+            if (gridItem.isTarget) {
+                gridItem
             } else {
-                vehicle.copy(
+                gridItem.copy(
                     imageIndex = currentPlanetIndex++
                 ).also {
                     if (currentPlanetIndex > 14) {

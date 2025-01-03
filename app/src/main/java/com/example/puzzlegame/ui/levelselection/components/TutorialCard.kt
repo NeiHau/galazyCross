@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -18,7 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.example.galaxycross.R
 
 @Composable
 fun TutorialCard(
@@ -29,6 +35,10 @@ fun TutorialCard(
         modifier = modifier
             .fillMaxWidth()
             .height(72.dp)
+            .semantics {
+                contentDescription = "チュートリアルを開始する"
+                role = Role.Button
+            }
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
@@ -42,29 +52,25 @@ fun TutorialCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Done,
-                contentDescription = "チュートリアル",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "チュートリアル（まずはここから！）",
+                    text = "チュートリアル（まずはここから）",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
-                    text = "ゲームの基本的な遊び方を学びましょう",
+                    text = "ゲームの基本的な遊び方を学びましょう！",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                 )
             }
             Icon(
-                imageVector = Icons.Default.Done,
-                contentDescription = "開始する",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                modifier = Modifier.size(36.dp),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_left_finger_icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.surfaceTint,
             )
         }
     }

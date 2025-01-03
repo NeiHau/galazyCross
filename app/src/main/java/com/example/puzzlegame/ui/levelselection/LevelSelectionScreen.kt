@@ -12,11 +12,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,8 +36,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.galaxycross.R
 import com.example.puzzlegame.data.GameLevels
 import com.example.puzzlegame.extension.findActivity
 import com.example.puzzlegame.repository.BillingRepository
@@ -45,11 +54,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LevelSelectionScreen(
+    viewModel: LevelSelectionViewModel = hiltViewModel(),
     onLevelSelect: (Int) -> Unit,
     clearedLevels: Set<Int>,
     isTutorialCompleted: Boolean,
     onTutorialSelect: () -> Unit,
-    viewModel: LevelSelectionViewModel = hiltViewModel()
+    onSettingIconTapped: () -> Unit,
 ) {
     val context = LocalContext.current
     val availableLevelCount = GameLevels.getLevelCount()
@@ -61,18 +71,24 @@ fun LevelSelectionScreen(
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // スナックバー文言
+    val premiumUnlockText = stringResource(R.string.premium_unlock)
+    val premiumFailureText = stringResource(R.string.premium_failure)
+    val premiumCancelText = stringResource(R.string.premium_cancel)
+    val premiumCannotBuyText = stringResource(R.string.premium_cannot_start_buy_process)
+
     LaunchedEffect(purchaseResult) {
         when (purchaseResult) {
             is BillingRepository.PurchaseResult.Success -> {
-                snackbarHostState.showSnackbar("プレミアム機能が解除されました")
+                snackbarHostState.showSnackbar(premiumUnlockText)
             }
             is BillingRepository.PurchaseResult.Error -> {
                 snackbarHostState.showSnackbar(
-                    "購入処理に失敗しました: ${(purchaseResult as BillingRepository.PurchaseResult.Error).message}"
+                    "$premiumFailureText: ${(purchaseResult as BillingRepository.PurchaseResult.Error).message}"
                 )
             }
             is BillingRepository.PurchaseResult.Canceled -> {
-                snackbarHostState.showSnackbar("購入がキャンセルされました")
+                snackbarHostState.showSnackbar(premiumCancelText)
             }
             null -> {}
         }
@@ -92,9 +108,19 @@ fun LevelSelectionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "レベル選択",
+                        text = stringResource(R.string.level_selection_appbar_title),
                         style = MaterialTheme.typography.titleLarge,
                     )
+                },
+                actions = {
+                    IconButton(
+                        onClick = onSettingIconTapped,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.level_selection_appbar_icon_contentDescription),
+                        )
+                    }
                 }
             )
         },
@@ -138,7 +164,7 @@ fun LevelSelectionScreen(
                                     viewModel.startPremiumPurchase(activity)
                                 } else {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("購入処理を開始できませんでした")
+                                        snackbarHostState.showSnackbar(premiumCannotBuyText)
                                     }
                                 }
                             } else {
@@ -160,10 +186,24 @@ private fun LevelSelectionItem(
     requiresPremium: Boolean,
     onClick: () -> Unit
 ) {
+    val stateDescription = when {
+        requiresPremium -> "プレミアム機能未解除"
+        isCleared -> "クリア済み"
+        isEnabled -> "プレイ可能"
+        else -> "未開放"
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(72.dp)
+            .semantics {
+                contentDescription = "レベル $levelNumber - $stateDescription"
+                if (isEnabled || requiresPremium) {
+                    role = Role.Button
+                    onClick(label = "レベル ${levelNumber}を選択", action = null)
+                }
+            }
             .then(
                 if (isEnabled || requiresPremium) {
                     Modifier.clickable(onClick = onClick)
@@ -198,7 +238,7 @@ private fun LevelSelectionItem(
                 )
                 if (requiresPremium) {
                     Text(
-                        text = "プレミアム解除で遊べます",
+                        text = "プレミアムセット購入で遊べます",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -208,14 +248,14 @@ private fun LevelSelectionItem(
             if (requiresPremium) {
                 Icon(
                     imageVector = Icons.Default.Lock,
-                    contentDescription = "プレミアムコンテンツ",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.Star,
-                    contentDescription = if (isCleared) "クリア済み" else "未クリア",
-                    tint = if (isCleared) Color.Yellow else Color.Gray
+                    contentDescription = null,
+                    tint = if (isCleared) Color(0xFFFFC20E) else Color.Gray
                 )
             }
         }

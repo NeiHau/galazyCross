@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.galaxycross.R
+import com.example.puzzlegame.data.GameLevels
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
 import com.example.puzzlegame.ui.common.dialog.GameClearDialog
@@ -70,12 +71,15 @@ fun PuzzleScreen(
     val gameState by puzzleViewModel.gameState.collectAsState()
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
-    var showInitialDialog by remember { mutableStateOf(true) }
 
     // リソース
     val spaceShuttleIcon = painterResource(id = R.drawable.ic_space_shuttle)
     val planetIcons = rememberPlanetIcons()
     val boardSize = LocalConfiguration.current.screenWidthDp.dp - 56.dp
+
+    // チュートリアルダイアログの表示条件
+    val showTutorialDialog = levelIndex == GameLevels.TUTORIAL_LEVEL_INDEX && !isTutorialCompleted
+    var showTutorial by remember { mutableStateOf(showTutorialDialog) }
 
     LaunchedEffect(levelIndex) {
         puzzleViewModel.initializeGame(levelIndex)
@@ -183,12 +187,12 @@ fun PuzzleScreen(
                 )
             }
         }
-        if (!isTutorialCompleted) {
+        if (showTutorial) {
             TutorialDialog(
-                onDismiss = { showInitialDialog = false },
+                onDismiss = { showTutorial = false },
                 onStartGame = {
                     puzzleViewModel.completeTutorial()
-                    showInitialDialog = false
+                    showTutorial = false
                 }
             )
         }
