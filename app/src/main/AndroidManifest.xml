@@ -4,7 +4,7 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
-        android:name="com.example.puzzlegame.MyApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,7 +15,7 @@
         android:theme="@style/Theme.GalaxyCross"
         tools:targetApi="31">
         <activity
-            android:name="com.example.puzzlegame.ui.MainActivity"
+            android:name="com.hakutogames.galaxycross.ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.GalaxyCross">
             <intent-filter>
