@@ -12,7 +12,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
-import com.example.puzzlegame.ui.theme.GalxyCrossTheme
+import com.example.puzzlegame.ui.theme.GalaxyCrossTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GalxyCrossTheme {
+            GalaxyCrossTheme {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val coroutineScope = rememberCoroutineScope()
                 val navController = rememberNavController()
