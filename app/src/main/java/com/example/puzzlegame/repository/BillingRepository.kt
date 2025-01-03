@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -20,28 +18,37 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
+import javax.inject.Singleton
 
 interface BillingRepository {
     fun getPurchaseState(): StateFlow<Boolean>
-    fun getPurchaseResult(): LiveData<PurchaseResult>
+    val purchaseResult: SharedFlow<PurchaseResult>
     fun launchBillingFlow(activity: Activity)
     suspend fun isPremiumPurchased(): Boolean
 
     sealed class PurchaseResult {
-        data object Success : PurchaseResult()
-        data object Canceled : PurchaseResult()
+        object Success : PurchaseResult()
+        object Canceled : PurchaseResult()
         data class Error(val message: String?) : PurchaseResult()
     }
 }
 
 
+@Singleton
 class BillingRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val billingDataStore: BillingDataStore,
@@ -57,18 +64,15 @@ class BillingRepositoryImpl @Inject constructor(
     private val _purchaseState = MutableStateFlow(false)
     override fun getPurchaseState(): StateFlow<Boolean> = _purchaseState.asStateFlow()
 
-    private val _purchaseResult = MutableLiveData<BillingRepository.PurchaseResult>()
-    override fun getPurchaseResult(): LiveData<BillingRepository.PurchaseResult> = _purchaseResult
+    private val _purchaseResult = MutableSharedFlow<BillingRepository.PurchaseResult>()
+    override val purchaseResult: SharedFlow<BillingRepository.PurchaseResult> = _purchaseResult.asSharedFlow()
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    // BillingClientの接続状態を追跡するフラグ
     private val _isBillingClientReady = MutableStateFlow(false)
     private val isBillingClientReady: StateFlow<Boolean> = _isBillingClientReady.asStateFlow()
 
     init {
-        initBillingClient()
-
         coroutineScope.launch {
             billingDataStore.isPremiumPurchased.collect { isPurchased ->
                 _purchaseState.emit(isPurchased)
@@ -76,8 +80,9 @@ class BillingRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun initBillingClient() {
-        Log.d(TAG, "Initializing BillingClient")
+    private fun initializeBillingClient() {
+        if (billingClient?.isReady == true) return
+
         billingClient = BillingClient.newBuilder(context)
             .setListener(this)
             .enablePendingPurchases()
@@ -88,21 +93,27 @@ class BillingRepositoryImpl @Inject constructor(
                 Log.d(TAG, "onBillingSetupFinished: responseCode=${billingResult.responseCode}, " +
                         "debugMessage=${billingResult.debugMessage}")
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    _isBillingClientReady.value = true
-                    queryPurchases()
+                    coroutineScope.launch {
+                        _isBillingClientReady.emit(true)
+                        queryPurchases()
+                    }
                 } else {
-                    _purchaseResult.postValue(
-                        BillingRepository.PurchaseResult.Error("Billing setup failed: ${billingResult.debugMessage}")
-                    )
+                    coroutineScope.launch {
+                        _purchaseResult.emit(
+                            BillingRepository.PurchaseResult.Error("Billing setup failed: ${billingResult.debugMessage}")
+                        )
+                    }
                 }
             }
 
             override fun onBillingServiceDisconnected() {
                 Log.d(TAG, "Billing service disconnected")
-                _isBillingClientReady.value = false
-                _purchaseResult.postValue(
-                    BillingRepository.PurchaseResult.Error("Billing service disconnected")
-                )
+                coroutineScope.launch {
+                    _isBillingClientReady.emit(false)
+                    _purchaseResult.emit(
+                        BillingRepository.PurchaseResult.Error("Billing service disconnected")
+                    )
+                }
             }
         })
     }
@@ -111,7 +122,6 @@ class BillingRepositoryImpl @Inject constructor(
         billingResult: BillingResult,
         purchases: MutableList<Purchase>?
     ) {
-        // 詳細なログを追加
         Log.d(TAG, """
             Purchase Update Details:
             Response Code: ${billingResult.responseCode}
@@ -128,15 +138,18 @@ class BillingRepositoryImpl @Inject constructor(
                 handlePurchase(purchase)
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            _purchaseResult.postValue(BillingRepository.PurchaseResult.Canceled)
+            coroutineScope.launch {
+                _purchaseResult.emit(BillingRepository.PurchaseResult.Canceled)
+            }
         } else {
-            _purchaseResult.postValue(
-                BillingRepository.PurchaseResult.Error("Purchase failed: ${billingResult.debugMessage}")
-            )
+            coroutineScope.launch {
+                _purchaseResult.emit(
+                    BillingRepository.PurchaseResult.Error("Purchase failed: ${billingResult.debugMessage}")
+                )
+            }
         }
     }
 
-    // レスポンスコードを人間が読める形式に変換するヘルパー関数
     private fun getBillingResponseCodeName(responseCode: Int): String {
         return when (responseCode) {
             BillingClient.BillingResponseCode.OK -> "OK"
@@ -169,18 +182,21 @@ class BillingRepositoryImpl @Inject constructor(
                                     orderId = it
                                 )
                             }
-                            _purchaseResult.postValue(BillingRepository.PurchaseResult.Success)
+                            billingDataStore.setPremiumPurchased(true) // Ensure this is called
+                            _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                         }
                     } else {
-                        _purchaseResult.postValue(
-                            BillingRepository.PurchaseResult.Error("Acknowledgment failed: ${billingResult.debugMessage}")
-                        )
+                        coroutineScope.launch {
+                            _purchaseResult.emit(
+                                BillingRepository.PurchaseResult.Error("Acknowledgment failed: ${billingResult.debugMessage}")
+                            )
+                        }
                     }
                 }
             } else {
                 coroutineScope.launch {
                     billingDataStore.setPremiumPurchased(true)
-                    _purchaseResult.postValue(BillingRepository.PurchaseResult.Success)
+                    _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                 }
             }
         }
@@ -201,22 +217,38 @@ class BillingRepositoryImpl @Inject constructor(
                     handlePurchase(purchase)
                 }
             } else {
-                _purchaseResult.postValue(
-                    BillingRepository.PurchaseResult.Error("Query purchases failed: ${billingResult.debugMessage}")
-                )
+                coroutineScope.launch {
+                    _purchaseResult.emit(
+                        BillingRepository.PurchaseResult.Error("Query purchases failed: ${billingResult.debugMessage}")
+                    )
+                }
             }
         }
     }
 
     override fun launchBillingFlow(activity: Activity) {
         coroutineScope.launch {
-            Log.d(TAG, "Starting launchBillingFlow, BillingClient ready: ${isBillingClientReady.first()}")
-            if (!isBillingClientReady.first()) {
-                Log.e(TAG, "BillingClient is not ready")
-                _purchaseResult.postValue(
-                    BillingRepository.PurchaseResult.Error("BillingClient is not ready")
+            if (isPremiumPurchased()) {
+                _purchaseResult.emit(
+                    BillingRepository.PurchaseResult.Error("Premium already purchased.")
                 )
                 return@launch
+            }
+
+            Log.d(TAG, "Starting launchBillingFlow, BillingClient ready: ${isBillingClientReady.value}")
+            if (!isBillingClientReady.value) {
+                initializeBillingClient()
+                try {
+                    withTimeout(5000) {
+                        isBillingClientReady.filter { it }.first()
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    Log.e(TAG, "BillingClient initialization timed out")
+                    _purchaseResult.emit(
+                        BillingRepository.PurchaseResult.Error("BillingClient initialization timed out")
+                    )
+                    return@launch
+                }
             }
 
             val productList = listOf(
@@ -266,13 +298,16 @@ class BillingRepositoryImpl @Inject constructor(
                                 "responseCode=${billingResult.responseCode}, " +
                                 "debugMessage=${billingResult.debugMessage}")
                         Toast.makeText(context, "Failed to retrieve product details", Toast.LENGTH_SHORT).show()
-                        _purchaseResult.postValue(
-                            BillingRepository.PurchaseResult.Error("Failed to retrieve product details: ${billingResult.debugMessage}")
-                        )
+                        coroutineScope.launch {
+                            _purchaseResult.emit(
+                                BillingRepository.PurchaseResult.Error("Failed to retrieve product details: ${billingResult.debugMessage}")
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
 

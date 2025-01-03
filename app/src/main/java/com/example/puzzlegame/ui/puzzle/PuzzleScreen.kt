@@ -7,19 +7,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,16 +41,23 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.galaxycross.R
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.hakutogames.galaxycross.R
 import com.example.puzzlegame.data.GameLevels
 import com.example.puzzlegame.data.GameLevels.LEVELS
 import com.example.puzzlegame.domain.GameState
@@ -71,11 +83,12 @@ fun PuzzleScreen(
     val gameState by puzzleViewModel.gameState.collectAsState()
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
+    var showAnswerDialog by remember { mutableStateOf(false) }
 
     // リソース
     val spaceShuttleIcon = painterResource(id = R.drawable.ic_space_shuttle)
     val planetIcons = rememberPlanetIcons()
-    val boardSize = LocalConfiguration.current.screenWidthDp.dp - 56.dp
+    val boardSize = LocalConfiguration.current.screenWidthDp.dp - 52.dp
 
     // チュートリアルダイアログの表示条件
     val showTutorialDialog = levelIndex == GameLevels.TUTORIAL_LEVEL_INDEX && !isTutorialCompleted
@@ -111,6 +124,15 @@ fun PuzzleScreen(
                             )
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { showAnswerDialog = true }) {
+                            Icon(
+                                modifier = Modifier.size(40.dp),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_info_icon),
+                                contentDescription = "回答動画を表示",
+                            )
+                        }
+                    }
                 )
             }
         ) { paddingValues ->
@@ -155,7 +177,7 @@ fun PuzzleScreen(
                 TextButton(
                     modifier = Modifier
                         .width(120.dp)
-                        .padding(vertical = 12.dp)
+                        .padding(bottom = 36.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(Color.White),
                     onClick = { puzzleViewModel.initializeGame(levelIndex) },
@@ -174,7 +196,7 @@ fun PuzzleScreen(
                     planetIcons = planetIcons,
                     onVehicleSelect = { puzzleViewModel.selectVehicle(it) },
                 )
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 GridItemControl(
                     gridItem = gameState.selectedVehicleId?.let { selectedId ->
                         gameState.gridItems.find { it.id == selectedId }
@@ -185,6 +207,48 @@ fun PuzzleScreen(
                         }
                     }
                 )
+            }
+        }
+        // 回答動画を表示するダイアログ
+        if (showAnswerDialog) {
+            Dialog(onDismissRequest = { showAnswerDialog = false }) {
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "レベル ${levelIndex + 1} の回答動画",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        // Lottieアニメーションの表示
+//                        val composition by rememberLottieComposition(
+//                            LottieCompositionSpec.RawRes()
+//                        )
+//                        LottieAnimation(
+//                            composition = composition,
+//                            iterations = LottieConstants.IterateForever,
+//                            modifier = Modifier
+//                                .size(200.dp)
+//                                .padding(bottom = 16.dp)
+//                        )
+
+                        // 閉じるボタン
+                        Button(onClick = { showAnswerDialog = false }) {
+                            Text("閉じる")
+                        }
+                    }
+                }
             }
         }
         if (showTutorial) {
@@ -243,7 +307,7 @@ private fun GridBackground(boardSize: Dp) {
 }
 
 @Composable
-fun GameBoard(
+private fun GameBoard(
     gameState: GameState,
     boardSize: Dp,
     ambulanceIcon: Painter,

@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-01-03T06:39:03.723064Z">
+        <DropdownSelection timestamp="2025-01-03T13:12:06.898120Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=/Users/uchidakaito/.android/avd/Pixel_7a.avd" />
@@ -14,6 +14,12 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="LottieAnimationPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="PreviewLevelSelectionScreenPremiumPurchased">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="LevelSelectionScreenPremiumPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

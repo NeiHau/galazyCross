@@ -35,7 +35,7 @@ android {
             storeFile = file(getEnvProperty("RELEASE_STORE_FILE") ?: "")
         }
     }
-    namespace = "com.example.galaxycross"
+    namespace = "com.hakutogames.galaxycross"
     compileSdk = 34
 
     defaultConfig {
@@ -69,6 +69,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.6"

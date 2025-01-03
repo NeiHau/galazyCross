@@ -4,12 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.puzzlegame.data.GameLevels
+import com.example.puzzlegame.ui.terms.TermsScreen
 import com.example.puzzlegame.ui.levelselection.LevelSelectionScreen
 import com.example.puzzlegame.ui.puzzle.PuzzleScreen
 import com.example.puzzlegame.ui.puzzle.PuzzleViewModel
@@ -21,13 +22,15 @@ sealed class Screen(val route: String) {
         fun createRoute(levelIndex: Int) = "game/$levelIndex"
     }
     data object Setting : Screen("setting")
+    data object Terms : Screen("terms")
 }
 
 @Composable
 fun AppNavigation(
     puzzleViewModel: PuzzleViewModel = hiltViewModel(),
+    navController: NavHostController,
+    onShowSnackbar: (String) -> Unit,
 ) {
-    val navController = rememberNavController()
     val clearedLevels by puzzleViewModel.clearedLevels.collectAsState(initial = emptySet())
     val isTutorialCompleted by puzzleViewModel.isTutorialCompleted.collectAsState(initial = false)
 
@@ -39,6 +42,7 @@ fun AppNavigation(
             LevelSelectionScreen(
                 clearedLevels = clearedLevels,
                 isTutorialCompleted = isTutorialCompleted,
+                onShowSnackbar = onShowSnackbar,
                 onTutorialSelect = {
                     puzzleViewModel.initializeGame(GameLevels.TUTORIAL_LEVEL_INDEX)
                     navController.navigate(Screen.Game.createRoute(GameLevels.TUTORIAL_LEVEL_INDEX))
@@ -55,7 +59,7 @@ fun AppNavigation(
                 },
                 onSettingIconTapped = {
                     navController.navigate(Screen.Setting.route)
-                }
+                },
             )
         }
 
@@ -95,6 +99,17 @@ fun AppNavigation(
         composable(route = Screen.Setting.route) {
             SettingsScreen(
                 onAppBarBackButtonTapped = {
+                    navController.popBackStack()
+                },
+                onTermsTapped = {
+                    navController.navigate(Screen.Terms.route)
+                },
+            )
+        }
+
+        composable(route = Screen.Terms.route) {
+            TermsScreen(
+                onBackButtonTapped = {
                     navController.popBackStack()
                 }
             )

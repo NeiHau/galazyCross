@@ -23,8 +23,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.galaxycross.R
+import com.hakutogames.galaxycross.R
 
 @Composable
 fun TutorialCard(
@@ -58,11 +59,13 @@ fun TutorialCard(
                 Text(
                     text = "チュートリアル（まずはここから）",
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
                     text = "ゲームの基本的な遊び方を学びましょう！",
                     style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.W500,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                 )
             }

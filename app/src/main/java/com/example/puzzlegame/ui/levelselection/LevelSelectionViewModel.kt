@@ -1,12 +1,13 @@
 package com.example.puzzlegame.ui.levelselection
 
 import android.app.Activity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.puzzlegame.repository.BillingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,13 +16,11 @@ class LevelSelectionViewModel @Inject constructor(
     private val billingRepository: BillingRepository,
 ) : ViewModel() {
 
-    private val _scrollState = MutableStateFlow(ScrollState())
-    val scrollState: StateFlow<ScrollState> = _scrollState.asStateFlow()
-
     private val _isPremiumPurchased = MutableStateFlow(false)
     val isPremiumPurchased: StateFlow<Boolean> = _isPremiumPurchased.asStateFlow()
 
-    val purchaseResult: LiveData<BillingRepository.PurchaseResult> = billingRepository.getPurchaseResult()
+    // Remove LiveData and use SharedFlow
+    val purchaseResult = billingRepository.purchaseResult
 
     init {
         viewModelScope.launch {
@@ -39,12 +38,13 @@ class LevelSelectionViewModel @Inject constructor(
      */
     fun startPremiumPurchase(activity: Activity) {
         viewModelScope.launch {
-            billingRepository.launchBillingFlow(activity)
+            if (!billingRepository.isPremiumPurchased()) {
+                billingRepository.launchBillingFlow(activity)
+            } else {
+                // Optionally, notify that premium is already purchased
+                // You can emit a specific event if needed
+            }
         }
     }
-
-    data class ScrollState(
-        val index: Int = 0,
-        val offset: Int = 0
-    )
 }
+

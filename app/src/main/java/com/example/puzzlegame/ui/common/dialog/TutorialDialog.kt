@@ -46,7 +46,7 @@ fun TutorialDialog(
         Surface(
             modifier = Modifier
                 .width(screenWidth * 0.9f)
-                .height(screenHeight * 0.8f),
+                .height(screenHeight * 1f),
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 8.dp
@@ -61,35 +61,39 @@ fun TutorialDialog(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "ゲーム説明",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
                     TutorialAnimationView(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(screenHeight * 0.45f)
+                            .height(screenHeight * 0.48f)
                             .width(screenWidth * 0.8f)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         buildAnnotatedString {
-                            append("アイテムをタップし、矢印で進行方向の前後に移動できるよ！。星を避けて宇宙船をゴールへ。リセットは")
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("「リセット」")
+                                append("1. アイテムを選択\n")
                             }
-                            append("をタップ！")
+                            append("移動させたいアイテムをタップします。\n\n")
+
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("2. 矢印キーで操作\n")
+                            }
+                            append("矢印ボタンを使って、アイテムを前後に動かします。\n\n")
+
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("3. ゴールを目指そう\n")
+                            }
+                            append("星を避けながら、宇宙船をゴールまで導いてください。クリアするとゲーム終了です！\n\n")
+
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("4. リセット\n")
+                            }
+                            append("「リセット」をタップして、最初からもう一度挑戦できます。")
                         },
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         textAlign = TextAlign.Center,
                     )
-
                 }
-                Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = onStartGame,
                     modifier = Modifier

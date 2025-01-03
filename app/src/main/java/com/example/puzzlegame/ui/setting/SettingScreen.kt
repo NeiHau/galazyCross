@@ -1,5 +1,6 @@
 package com.example.puzzlegame.ui.setting
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,10 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.hakutogames.galaxycross.BuildConfig
+
+
 
 sealed class SettingItem {
-    data object SystemMode : SettingItem()
+//    data object SystemMode : SettingItem()
     data object Terms : SettingItem()
 }
 
@@ -40,6 +46,7 @@ data class SettingsSection(
 @Composable
 fun SettingsScreen(
     onAppBarBackButtonTapped: () -> Unit,
+    onTermsTapped: () -> Unit,
 ) {
     val isDarkTheme = isSystemInDarkTheme()
 
@@ -62,35 +69,55 @@ fun SettingsScreen(
                     }
                 }
             )
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
+                .padding(top = 24.dp)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
             SettingContentsList(
-                modifier = Modifier.padding(horizontal = 12.dp),
-                navigateToChangeEmail = {},
-                onOpenTerms = {},
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .weight(1f, fill = false),
+                onTermsTapped = onTermsTapped,
                 isDarkTheme = isDarkTheme
             )
+            VersionInfoText(isDarkTheme = isDarkTheme)
         }
     }
 }
 
+
+@Composable
+private fun VersionInfoText(isDarkTheme: Boolean) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = if(isDarkTheme) Color.Red else Color.Transparent)
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        text = "Version ${BuildConfig.VERSION_NAME}",
+        color = if (isDarkTheme) Color.White else Color.Black,
+        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+        textAlign = TextAlign.Center,
+        fontWeight = FontWeight.Bold,
+    )
+}
+
+
+
 @Composable
 fun SettingContentsList(
     modifier: Modifier = Modifier,
-    navigateToChangeEmail: () -> Unit,
-    onOpenTerms: () -> Unit,
+    onTermsTapped: () -> Unit,
     isDarkTheme: Boolean
 ) {
     val settingsSections = listOf(
         SettingsSection(
             items = listOf(
-                SettingItem.SystemMode to "システムモード設定",
+                // SettingItem.SystemMode to "システムモード設定",
                 SettingItem.Terms to "利用規約",
             ),
         ),
@@ -101,8 +128,8 @@ fun SettingContentsList(
         sections = settingsSections,
         onItemClicked = { item ->
             when (item) {
-                SettingItem.SystemMode -> navigateToChangeEmail()
-                SettingItem.Terms -> onOpenTerms()
+                // SettingItem.SystemMode -> {}
+                SettingItem.Terms -> onTermsTapped()
             }
         },
         isDarkTheme = isDarkTheme
@@ -140,7 +167,7 @@ private fun SettingsSectionContainer(
     modifier: Modifier = Modifier,
     items: List<Pair<SettingItem, String>>,
     onItemClicked: (SettingItem) -> Unit,
-    isDarkTheme: Boolean  // isDarkThemeパラメータを追加
+    isDarkTheme: Boolean,
 ) {
     Surface(
         modifier = modifier

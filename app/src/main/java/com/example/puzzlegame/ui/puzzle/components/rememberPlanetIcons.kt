@@ -3,7 +3,7 @@ package com.example.puzzlegame.ui.puzzle.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import com.example.galaxycross.R
+import com.hakutogames.galaxycross.R
 
 @Composable
 fun rememberPlanetIcons(): List<Painter> {
