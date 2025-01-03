@@ -17,3 +17,4 @@ local.properties
 .env
 /app/release/
 /app/google-services.json
+/app/proguard-rules.pro
