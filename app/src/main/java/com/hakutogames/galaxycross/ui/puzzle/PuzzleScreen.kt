@@ -7,24 +7,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,13 +45,13 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hakutogames.galaxycross.R
 import com.hakutogames.galaxycross.data.GameLevels
 import com.hakutogames.galaxycross.data.GameLevels.LEVELS
 import com.hakutogames.galaxycross.domain.GameState
+import com.hakutogames.galaxycross.ui.common.dialog.AnswerDialog
 import com.hakutogames.galaxycross.ui.common.dialog.GameClearDialog
 import com.hakutogames.galaxycross.ui.common.dialog.TutorialDialog
 import com.hakutogames.galaxycross.ui.puzzle.components.GoalCell
@@ -109,7 +104,7 @@ fun PuzzleScreen(
                     title = {
                         Text(
                             text = if (levelIndex == TUTORIAL_LEVEL_INDEX) "チュートリアル" else "レベル ${levelIndex + 1}",
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
                         )
                     },
                     navigationIcon = {
@@ -205,48 +200,14 @@ fun PuzzleScreen(
                 )
             }
         }
-        // 回答動画を表示するダイアログ
+
         if (showAnswerDialog) {
-            Dialog(onDismissRequest = { showAnswerDialog = false }) {
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "レベル ${levelIndex + 1} の回答動画",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-
-                        // Lottieアニメーションの表示
-//                        val composition by rememberLottieComposition(
-//                            LottieCompositionSpec.RawRes()
-//                        )
-//                        LottieAnimation(
-//                            composition = composition,
-//                            iterations = LottieConstants.IterateForever,
-//                            modifier = Modifier
-//                                .size(200.dp)
-//                                .padding(bottom = 16.dp)
-//                        )
-
-                        // 閉じるボタン
-                        Button(onClick = { showAnswerDialog = false }) {
-                            Text("閉じる")
-                        }
-                    }
-                }
-            }
+            AnswerDialog(
+                onDismiss = { showAnswerDialog = false },
+                levelIndex = levelIndex,
+            )
         }
+
         if (showTutorial) {
             TutorialDialog(
                 onDismiss = { showTutorial = false },

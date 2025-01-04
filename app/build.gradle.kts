@@ -106,7 +106,7 @@ dependencies {
     // Jetpack Compose用のViewModel拡張
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation(libs.androidx.navigation.compose)
 
     // Hilt Core
     implementation("com.google.dagger:hilt-android:2.48")
@@ -127,14 +127,15 @@ dependencies {
     // 3. Firebase以外の依存関係
     implementation(libs.billing.ktx)
 
-    implementation("com.airbnb.android:lottie-compose:6.0.0")
-
-    // Lifecycle components
-    val lifecycle_version = "2.7.0"
+    // Lottie
+    implementation(libs.lottie.compose)
 
     // LiveData
-    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
-    kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx.v270)
+    kapt(libs.androidx.lifecycle.compiler)
+
+    // ExoPlayer
+    implementation(libs.exoplayer)
 }

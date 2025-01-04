@@ -72,7 +72,7 @@ fun GameClearDialog(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onNextLevel,
                     ) {
-                        Text("次のステージへ")
+                        Text("次のレベルへ")
                     }
                 }
                 Button(
