@@ -59,7 +59,7 @@ fun GameClearDialog(
                     .padding(top = 8.dp),
                 text = dialogMessage,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.W500,
+                fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
             )
         },

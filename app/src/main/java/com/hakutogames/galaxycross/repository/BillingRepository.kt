@@ -40,8 +40,8 @@ interface BillingRepository {
     suspend fun isPremiumPurchased(): Boolean
 
     sealed class PurchaseResult {
-        object Success : PurchaseResult()
-        object Canceled : PurchaseResult()
+        data object Success : PurchaseResult()
+        data object Canceled : PurchaseResult()
         data class Error(val message: String?) : PurchaseResult()
     }
 }
@@ -188,7 +188,7 @@ class BillingRepositoryImpl @Inject constructor(
                                     orderId = it,
                                 )
                             }
-                            billingDataStore.setPremiumPurchased(true) // Ensure this is called
+                            billingDataStore.setPremiumPurchased(true)
                             _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                         }
                     } else {
