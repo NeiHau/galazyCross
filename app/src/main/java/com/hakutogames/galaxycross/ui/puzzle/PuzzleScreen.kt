@@ -1,5 +1,6 @@
 package com.hakutogames.galaxycross.ui.puzzle
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -91,9 +92,16 @@ fun PuzzleScreen(
 
     LaunchedEffect(gameState.isGameComplete) {
         if (gameState.isGameComplete) {
+            if (levelIndex == GameLevels.TUTORIAL_LEVEL_INDEX && !isTutorialCompleted) {
+                puzzleViewModel.completeTutorial()
+            }
             showDialog = true
             onLevelCleared(levelIndex)
         }
+    }
+
+    if (showTutorial) {
+        BackHandler(enabled = true) {}
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -212,7 +220,6 @@ fun PuzzleScreen(
             TutorialDialog(
                 onDismiss = { showTutorial = false },
                 onStartGame = {
-                    puzzleViewModel.completeTutorial()
                     showTutorial = false
                 }
             )

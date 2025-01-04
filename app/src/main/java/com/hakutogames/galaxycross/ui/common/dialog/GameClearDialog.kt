@@ -40,7 +40,7 @@ fun GameClearDialog(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = dialogTitle,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
             )
         },

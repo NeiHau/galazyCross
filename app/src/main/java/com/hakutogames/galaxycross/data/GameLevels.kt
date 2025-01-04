@@ -28,7 +28,8 @@ object GameLevels {
         GridItem(id = "0", position = Offset(2f, 4f), length = 2, isHorizontal = false, isTarget = true),
         GridItem(id = "1", position = Offset(2f, 2f), length = 2, isHorizontal = true),
         GridItem(id = "2", position = Offset(2f, 3f), length = 3, isHorizontal = true),
-        GridItem(id = "3", position = Offset(1f, 0f), length = 3, isHorizontal = false),
+        GridItem(id = "3", position = Offset(2f, 1f), length = 2, isHorizontal = true),
+        GridItem(id = "4", position = Offset(5f, 3f), length = 3, isHorizontal = false),
     ))
 
     val LEVELS = listOf(
