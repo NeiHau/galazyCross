@@ -34,8 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hakutogames.galaxycross.BuildConfig
 
-
-
 sealed class SettingItem {
     data object Terms : SettingItem()
     data object Contact : SettingItem()

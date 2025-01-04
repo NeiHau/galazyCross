@@ -1,6 +1,7 @@
 package com.hakutogames.galaxycross.ui.levelselection
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,22 +19,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hakutogames.galaxycross.R
 import com.hakutogames.galaxycross.data.GameLevels
 import com.hakutogames.galaxycross.extension.findActivity
 import com.hakutogames.galaxycross.repository.BillingRepository
 import com.hakutogames.galaxycross.ui.levelselection.components.LevelSelectionItem
 import com.hakutogames.galaxycross.ui.levelselection.components.TutorialCard
-import com.hakutogames.galaxycross.R
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -46,17 +47,24 @@ fun LevelSelectionScreen(
     onShowSnackbar: (String) -> Unit,
     onTutorialSelect: () -> Unit,
     onSettingIconTapped: () -> Unit,
+    isReturningToLevelSelection: Boolean,
 ) {
     val availableLevelCount = GameLevels.getLevelCount()
-    val isPremiumPurchased by viewModel.isPremiumPurchased.collectAsState()
+    val isPremiumPurchased by viewModel.isPremiumPurchased.collectAsStateWithLifecycle()
+    val scrollToLevelIndex by viewModel.scrollToLevelIndex.collectAsStateWithLifecycle()
 
-    // Snackbar messages
+    // Snackbarのメッセージを取得
     val premiumUnlockText = stringResource(R.string.premium_unlock)
     val premiumFailureText = stringResource(R.string.premium_failure)
     val premiumCancelText = stringResource(R.string.premium_cancel)
     val premiumCannotBuyText = stringResource(R.string.premium_cannot_start_buy_process)
 
-    // Collect events from SharedFlow
+    LaunchedEffect(Unit) {
+        if (!isPremiumPurchased && clearedLevels.contains(14) && isReturningToLevelSelection) {
+            viewModel.setScrollToLevelIndex(15)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.purchaseResult.collectLatest { purchaseResult ->
             when (purchaseResult) {
@@ -64,9 +72,7 @@ fun LevelSelectionScreen(
                     onShowSnackbar(premiumUnlockText)
                 }
                 is BillingRepository.PurchaseResult.Error -> {
-                    onShowSnackbar(
-                        "$premiumFailureText: ${purchaseResult.message}"
-                    )
+                    onShowSnackbar(premiumFailureText)
                 }
                 is BillingRepository.PurchaseResult.Canceled -> {
                     onShowSnackbar(premiumCancelText)
@@ -77,6 +83,7 @@ fun LevelSelectionScreen(
 
     LevelSelectionScreen(
         clearedLevels = clearedLevels,
+        scrollToLevelIndex = scrollToLevelIndex,
         premiumCannotBuyText = premiumCannotBuyText,
         availableLevelCount = availableLevelCount,
         isPremiumPurchased = isPremiumPurchased,
@@ -86,6 +93,7 @@ fun LevelSelectionScreen(
         onLevelSelect = onLevelSelect,
         onSettingIconTapped = onSettingIconTapped,
         onStartPremiumPurchase = viewModel::startPremiumPurchase,
+        clearScrollToLevelIndex = viewModel::clearScrollToLevelIndex,
     )
 }
 
@@ -93,6 +101,7 @@ fun LevelSelectionScreen(
 @Composable
 private fun LevelSelectionScreen(
     clearedLevels: Set<Int>,
+    scrollToLevelIndex: Int?,  // nullableに変更
     premiumCannotBuyText: String,
     availableLevelCount: Int,
     isTutorialCompleted: Boolean,
@@ -102,10 +111,36 @@ private fun LevelSelectionScreen(
     onLevelSelect: (Int) -> Unit,
     isPremiumPurchased: Boolean,
     onStartPremiumPurchase: (Activity) -> Unit,
+    clearScrollToLevelIndex: () -> Unit,
 ) {
     val context = LocalContext.current
-    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(scrollToLevelIndex) {
+        scrollToLevelIndex?.let { index ->
+            Log.d("LevelSelectionScreen", "Attempting to scroll to index: $index")
+            if (index in 0 until availableLevelCount) {
+                try {
+                    // 画面の描画を待つ
+                    delay(500)
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(
+                            index = index,
+                            scrollOffset = 0
+                        )
+                        Log.d("LevelSelectionScreen", "Scroll completed successfully")
+                        // スクロール完了後に少し待ってからクリア
+                        delay(500)
+                        clearScrollToLevelIndex()
+                    }
+                } catch (e: Exception) {
+                    Log.e("LevelSelectionScreen", "Scroll failed", e)
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -192,45 +227,45 @@ private fun LevelSelectionScreen(
     }
 }
 
-// プレミアム購入後のUIを表示
-@Preview(showBackground = true)
-@Composable
-fun LevelSelectionScreenPremiumPreview() {
-    val clearedLevels = setOf(0, 1, 2, 3, 4, 5)
-    val premiumCannotBuyText = "購入プロセスを開始できません"
-
-    LevelSelectionScreen(
-        clearedLevels = clearedLevels,
-        premiumCannotBuyText = premiumCannotBuyText,
-        availableLevelCount = 30,
-        isPremiumPurchased = true,
-        isTutorialCompleted = false,
-        onShowSnackbar = {},
-        onTutorialSelect = {},
-        onLevelSelect = {},
-        onSettingIconTapped = {},
-        onStartPremiumPurchase = {}
-    )
-}
-
-
-// プレミアム購入前のUIを表示
-@Preview(showBackground = true)
-@Composable
-fun LevelSelectionScreenNonPremiumPreview() {
-    val clearedLevels = setOf(0, 1, 2, 3, 4, 5)
-    val premiumCannotBuyText = "購入プロセスを開始できません"
-
-    LevelSelectionScreen(
-        clearedLevels = clearedLevels,
-        premiumCannotBuyText = premiumCannotBuyText,
-        availableLevelCount = 30,
-        isPremiumPurchased = false,
-        isTutorialCompleted = false,
-        onShowSnackbar = {},
-        onTutorialSelect = {},
-        onLevelSelect = {},
-        onSettingIconTapped = {},
-        onStartPremiumPurchase = {}
-    )
-}
+//// プレミアム購入後のUIを表示
+//@Preview(showBackground = true)
+//@Composable
+//fun LevelSelectionScreenPremiumPreview() {
+//    val clearedLevels = setOf(0, 1, 2, 3, 4, 5)
+//    val premiumCannotBuyText = "購入プロセスを開始できません"
+//
+//    LevelSelectionScreen(
+//        clearedLevels = clearedLevels,
+//        premiumCannotBuyText = premiumCannotBuyText,
+//        availableLevelCount = 30,
+//        isPremiumPurchased = true,
+//        isTutorialCompleted = false,
+//        onShowSnackbar = {},
+//        onTutorialSelect = {},
+//        onLevelSelect = {},
+//        onSettingIconTapped = {},
+//        onStartPremiumPurchase = {}
+//    )
+//}
+//
+//
+//// プレミアム購入前のUIを表示
+//@Preview(showBackground = true)
+//@Composable
+//fun LevelSelectionScreenNonPremiumPreview() {
+//    val clearedLevels = setOf(0, 1, 2, 3, 4, 5)
+//    val premiumCannotBuyText = "購入プロセスを開始できません"
+//
+//    LevelSelectionScreen(
+//        clearedLevels = clearedLevels,
+//        premiumCannotBuyText = premiumCannotBuyText,
+//        availableLevelCount = 30,
+//        isPremiumPurchased = false,
+//        isTutorialCompleted = false,
+//        onShowSnackbar = {},
+//        onTutorialSelect = {},
+//        onLevelSelect = {},
+//        onSettingIconTapped = {},
+//        onStartPremiumPurchase = {}
+//    )
+//}

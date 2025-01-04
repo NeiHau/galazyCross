@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
     kotlin("kapt")
 }
 
@@ -81,6 +82,16 @@ android {
     }
 }
 
+detekt {
+    ignoreFailures = false
+    buildUponDefaultConfig = true
+    config.setFrom(
+        "$rootDir/config/detekt/detekt_code_smell_check_local.yml",
+        "$rootDir/config/detekt/detekt_code_format_check.yml",
+    )
+    autoCorrect = true
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -123,6 +134,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-functions-ktx")
+
+    // Linter
+    detektPlugins(libs.detekt)
 
     // 3. Firebase以外の依存関係
     implementation(libs.billing.ktx)

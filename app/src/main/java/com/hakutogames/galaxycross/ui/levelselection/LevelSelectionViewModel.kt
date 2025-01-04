@@ -1,6 +1,8 @@
 package com.hakutogames.galaxycross.ui.levelselection
 
 import android.app.Activity
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hakutogames.galaxycross.repository.BillingRepository
@@ -14,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LevelSelectionViewModel @Inject constructor(
     private val billingRepository: BillingRepository,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val _isPremiumPurchased = MutableStateFlow(false)
@@ -22,12 +25,25 @@ class LevelSelectionViewModel @Inject constructor(
     // Remove LiveData and use SharedFlow
     val purchaseResult = billingRepository.purchaseResult
 
+    private val _scrollToLevelIndex = savedStateHandle.getStateFlow<Int?>("scroll_index", null)
+    val scrollToLevelIndex: StateFlow<Int?> = _scrollToLevelIndex
+
     init {
         viewModelScope.launch {
             billingRepository.getPurchaseState().collect { isPurchased ->
                 _isPremiumPurchased.value = isPurchased
             }
         }
+    }
+
+    fun setScrollToLevelIndex(index: Int) {
+        Log.d("LevelSelectionViewModel", "Setting scroll index to: $index")
+        savedStateHandle["scroll_index"] = index
+    }
+
+    fun clearScrollToLevelIndex() {
+        Log.d("LevelSelectionViewModel", "Clearing scroll index")
+        savedStateHandle["scroll_index"] = null
     }
 
     /**

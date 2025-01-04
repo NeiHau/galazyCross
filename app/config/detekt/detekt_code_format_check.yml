@@ -1,0 +1,10 @@
+formatting:
+  active: true
+  NoWildcardImports:
+    active: false
+  PackageName:
+    active: false
+  TrailingCommaOnCallSite:
+    active: true
+  TrailingCommaOnDeclarationSite:
+    active: true

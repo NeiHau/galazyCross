@@ -23,9 +23,10 @@ const val TUTORIAL_LEVEL_INDEX = -1
 fun GameClearDialog(
     currentLevel: Int,
     hasNextLevel: Boolean,
+    isPremiumUser: Boolean,
     onReplay: () -> Unit,
     onNextLevel: () -> Unit,
-    onShowLevelSelection: () -> Unit
+    onShowLevelSelection: (Int?) -> Unit,
 ) {
     val dialogTitle = if (currentLevel == TUTORIAL_LEVEL_INDEX) {
         "チュートリアル完了！"
@@ -47,6 +48,8 @@ fun GameClearDialog(
         text = {
             val dialogMessage = if (currentLevel == TUTORIAL_LEVEL_INDEX) {
                 "次に進みましょう。"
+            } else if(!isPremiumUser && currentLevel == 14) {
+                "レベル16以降に挑戦するには、追加コンテンツのご購入が必要です。\n\nレベル選択画面からご購入頂けます。"
             } else {
                 "次はどうしますか？"
             }
@@ -57,7 +60,7 @@ fun GameClearDialog(
                 text = dialogMessage,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.W500,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
             )
         },
         confirmButton = {
@@ -67,12 +70,14 @@ fun GameClearDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (hasNextLevel || currentLevel == TUTORIAL_LEVEL_INDEX) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = onNextLevel,
-                    ) {
-                        Text("次のレベルへ")
+                if (hasNextLevel) {
+                    if (isPremiumUser) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onNextLevel,
+                        ) {
+                            Text("次のレベルへ")
+                        }
                     }
                 }
                 Button(
@@ -86,7 +91,14 @@ fun GameClearDialog(
                 }
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onShowLevelSelection,
+                    onClick = {
+                        val scrollIndex = if (!isPremiumUser && currentLevel == 14) {
+                            15
+                        } else {
+                            null
+                        }
+                        onShowLevelSelection(scrollIndex)
+                    },
                 ) {
                     Text("レベル選択に戻る")
                 }

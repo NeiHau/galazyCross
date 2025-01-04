@@ -1,20 +1,24 @@
 package com.hakutogames.galaxycross.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.hakutogames.galaxycross.data.GameLevels
-import com.hakutogames.galaxycross.ui.terms.TermsScreen
 import com.hakutogames.galaxycross.ui.levelselection.LevelSelectionScreen
+import com.hakutogames.galaxycross.ui.levelselection.LevelSelectionViewModel
 import com.hakutogames.galaxycross.ui.puzzle.PuzzleScreen
 import com.hakutogames.galaxycross.ui.puzzle.PuzzleViewModel
 import com.hakutogames.galaxycross.ui.setting.SettingsScreen
+import com.hakutogames.galaxycross.ui.terms.TermsScreen
 
 sealed class Screen(val route: String) {
     data object LevelSelection : Screen("levelSelection")
@@ -27,12 +31,17 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun AppNavigation(
-    puzzleViewModel: PuzzleViewModel = hiltViewModel(),
     navController: NavHostController,
     onShowSnackbar: (String) -> Unit,
 ) {
-    val clearedLevels by puzzleViewModel.clearedLevels.collectAsState(initial = emptySet())
-    val isTutorialCompleted by puzzleViewModel.isTutorialCompleted.collectAsState(initial = false)
+    val levelSelectionViewModel: LevelSelectionViewModel = hiltViewModel()
+    val puzzleViewModel: PuzzleViewModel = hiltViewModel()
+
+    val clearedLevels by puzzleViewModel.clearedLevels.collectAsStateWithLifecycle()
+    val isTutorialCompleted by puzzleViewModel.isTutorialCompleted.collectAsStateWithLifecycle()
+    val isPremiumUser by levelSelectionViewModel.isPremiumPurchased.collectAsStateWithLifecycle()
+
+    var isReturningToLevelSelection by remember { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
@@ -60,6 +69,7 @@ fun AppNavigation(
                 onSettingIconTapped = {
                     navController.navigate(Screen.Setting.route)
                 },
+                isReturningToLevelSelection = isReturningToLevelSelection,
             )
         }
 
@@ -72,6 +82,7 @@ fun AppNavigation(
             val levelIndex = backStackEntry.arguments?.getInt("levelIndex") ?: 0
 
             PuzzleScreen(
+                isPremiumUser = isPremiumUser,
                 isTutorialCompleted = isTutorialCompleted,
                 levelIndex = levelIndex,
                 onLevelCleared = { clearedLevel ->
@@ -89,6 +100,10 @@ fun AppNavigation(
                     }
                 },
                 onBackToLevelSelection = {
+                    if (!isPremiumUser && levelIndex == 14) {
+                        levelSelectionViewModel.setScrollToLevelIndex(15)
+                        isReturningToLevelSelection = true
+                    }
                     navController.navigate(Screen.LevelSelection.route) {
                         popUpTo(0)
                     }

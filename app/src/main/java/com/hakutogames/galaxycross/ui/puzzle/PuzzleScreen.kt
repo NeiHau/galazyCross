@@ -1,6 +1,5 @@
 package com.hakutogames.galaxycross.ui.puzzle
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -44,47 +41,37 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hakutogames.galaxycross.R
 import com.hakutogames.galaxycross.data.GameLevels
 import com.hakutogames.galaxycross.data.GameLevels.LEVELS
 import com.hakutogames.galaxycross.domain.GameState
+import com.hakutogames.galaxycross.domain.GridItem
 import com.hakutogames.galaxycross.ui.common.dialog.AnswerDialog
 import com.hakutogames.galaxycross.ui.common.dialog.GameClearDialog
 import com.hakutogames.galaxycross.ui.common.dialog.TutorialDialog
-import com.hakutogames.galaxycross.ui.puzzle.components.GoalCell
+import com.hakutogames.galaxycross.ui.puzzle.components.GameBoard
 import com.hakutogames.galaxycross.ui.puzzle.components.GridItemControl
-import com.hakutogames.galaxycross.ui.puzzle.components.SpaceObjectItem
 import com.hakutogames.galaxycross.ui.puzzle.components.rememberPlanetIcons
 
 const val TUTORIAL_LEVEL_INDEX = -1
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PuzzleScreen(
     puzzleViewModel: PuzzleViewModel = hiltViewModel(),
+    isPremiumUser: Boolean,
     isTutorialCompleted: Boolean,
     levelIndex: Int,
     onLevelCleared: (Int) -> Unit,
     onNavigateToLevel: (Int) -> Unit,
-    onBackToLevelSelection: () -> Unit,
+    onBackToLevelSelection: (Int?) -> Unit,
 ) {
-    val gameState by puzzleViewModel.gameState.collectAsState()
-    val focusManager = LocalFocusManager.current
-    var showDialog by remember { mutableStateOf(false) }
-    var showAnswerDialog by remember { mutableStateOf(false) }
-
-    // リソース
-    val spaceShuttleIcon = painterResource(id = R.drawable.ic_space_shuttle)
-    val planetIcons = rememberPlanetIcons()
-    val boardSize = LocalConfiguration.current.screenWidthDp.dp - 52.dp
-
-    // チュートリアルダイアログの表示条件
-    val showTutorialDialog = levelIndex == GameLevels.TUTORIAL_LEVEL_INDEX && !isTutorialCompleted
-    var showTutorial by remember { mutableStateOf(showTutorialDialog) }
+    val gameState by puzzleViewModel.gameState.collectAsStateWithLifecycle()
 
     LaunchedEffect(levelIndex) {
         puzzleViewModel.initializeGame(levelIndex)
@@ -95,13 +82,52 @@ fun PuzzleScreen(
             if (levelIndex == GameLevels.TUTORIAL_LEVEL_INDEX && !isTutorialCompleted) {
                 puzzleViewModel.completeTutorial()
             }
-            showDialog = true
             onLevelCleared(levelIndex)
         }
     }
 
-    if (showTutorial) {
-        BackHandler(enabled = true) {}
+    PuzzleScreen(
+        gameState = gameState,
+        levelIndex = levelIndex,
+        isPremiumUser = isPremiumUser,
+        isTutorialCompleted = isTutorialCompleted,
+        selectVehicle = puzzleViewModel::selectVehicle,
+        moveVehicle = puzzleViewModel::moveVehicle,
+        initializeGame = puzzleViewModel::initializeGame,
+        onNavigateToLevel = onNavigateToLevel,
+        onBackToLevelSelection = onBackToLevelSelection,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PuzzleScreen(
+    gameState: GameState,
+    levelIndex: Int,
+    isPremiumUser: Boolean,
+    isTutorialCompleted: Boolean,
+    selectVehicle: (String) -> Unit,
+    moveVehicle: (String, Offset) -> Unit,
+    initializeGame: (Int) -> Unit,
+    onNavigateToLevel: (Int) -> Unit,
+    onBackToLevelSelection: (Int?) -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    var showDialog by remember { mutableStateOf(false) }
+    var showAnswerDialog by remember { mutableStateOf(false) }
+
+    val showTutorialDialog = levelIndex == GameLevels.TUTORIAL_LEVEL_INDEX && !isTutorialCompleted
+    var showTutorial by remember { mutableStateOf(showTutorialDialog) }
+
+    // リソース
+    val spaceShuttleIcon = painterResource(id = R.drawable.ic_space_shuttle)
+    val planetIcons = rememberPlanetIcons()
+    val boardSize = LocalConfiguration.current.screenWidthDp.dp - 52.dp
+
+    LaunchedEffect(gameState.isGameComplete) {
+        if (gameState.isGameComplete) {
+            showDialog = true
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -116,7 +142,9 @@ fun PuzzleScreen(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = onBackToLevelSelection) {
+                        IconButton(
+                            onClick = { onBackToLevelSelection(null) }
+                        ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "戻る",
@@ -135,25 +163,6 @@ fun PuzzleScreen(
                 )
             }
         ) { paddingValues ->
-            if (showDialog && gameState.isGameComplete) {
-                GameClearDialog(
-                    currentLevel = levelIndex,
-                    hasNextLevel = levelIndex < LEVELS.size - 1,
-                    onReplay = {
-                        showDialog = false
-                        puzzleViewModel.initializeGame(levelIndex)
-                    },
-                    onNextLevel = {
-                        showDialog = false
-                        onNavigateToLevel(levelIndex + 1)
-                    },
-                    onShowLevelSelection = {
-                        showDialog = false
-                        focusManager.clearFocus()
-                        onBackToLevelSelection()
-                    }
-                )
-            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -179,7 +188,7 @@ fun PuzzleScreen(
                         .padding(bottom = 36.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(Color.White),
-                    onClick = { puzzleViewModel.initializeGame(levelIndex) },
+                    onClick = { initializeGame(levelIndex) },
                     enabled = !gameState.isGameComplete
                 ) {
                     Text(
@@ -193,7 +202,7 @@ fun PuzzleScreen(
                     boardSize = boardSize,
                     ambulanceIcon = spaceShuttleIcon,
                     planetIcons = planetIcons,
-                    onVehicleSelect = { puzzleViewModel.selectVehicle(it) },
+                    onVehicleSelect = { selectVehicle(it) },
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 GridItemControl(
@@ -202,33 +211,54 @@ fun PuzzleScreen(
                     },
                     onMove = { offset ->
                         gameState.selectedVehicleId?.let { selectedId ->
-                            puzzleViewModel.moveVehicle(selectedId, offset)
+                            moveVehicle(selectedId, offset)
                         }
                     }
                 )
             }
         }
 
-        if (showAnswerDialog) {
-            AnswerDialog(
-                onDismiss = { showAnswerDialog = false },
-                levelIndex = levelIndex,
-            )
-        }
-
-        if (showTutorial) {
-            TutorialDialog(
-                onDismiss = { showTutorial = false },
-                onStartGame = {
-                    showTutorial = false
-                }
-            )
+        when {
+            showTutorial -> {
+                TutorialDialog(
+                    onDismiss = { showTutorial = false },
+                    onStartGame = {
+                        showTutorial = false
+                    }
+                )
+            }
+            showDialog && gameState.isGameComplete -> {
+                GameClearDialog(
+                    currentLevel = levelIndex,
+                    isPremiumUser = isPremiumUser,
+                    hasNextLevel = levelIndex < LEVELS.size - 1,
+                    onReplay = {
+                        showDialog = false
+                        initializeGame(levelIndex)
+                    },
+                    onNextLevel = {
+                        showDialog = false
+                        onNavigateToLevel(levelIndex + 1)
+                    },
+                    onShowLevelSelection = { scrollIndex ->
+                        showDialog = false
+                        focusManager.clearFocus()
+                        onBackToLevelSelection(scrollIndex)
+                    }
+                )
+            }
+            showAnswerDialog -> {
+                AnswerDialog(
+                    onDismiss = { showAnswerDialog = false },
+                    levelIndex = levelIndex,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun GridBackground(boardSize: Dp) {
+fun GridBackground(boardSize: Dp) {
     Box(modifier = Modifier.size(boardSize)) {
         Box(
             modifier = Modifier
@@ -270,46 +300,46 @@ private fun GridBackground(boardSize: Dp) {
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun GameBoard(
-    gameState: GameState,
-    boardSize: Dp,
-    ambulanceIcon: Painter,
-    planetIcons: List<Painter>,
-    onVehicleSelect: (String) -> Unit,
-) {
-    val cellSize = boardSize / 6
+fun PuzzleScreenPreview() {
+    val mockGridItems = listOf(
+        GridItem(id = "0", position = Offset(2f, 4f), length = 2, isHorizontal = false,
+            isTarget = true, imageIndex = 1),
+        GridItem(id = "1", position = Offset(0f, 1f), length = 2, isHorizontal = true,
+            imageIndex = 2),
+        GridItem(id = "2", position = Offset(3f, 1f), length = 2, isHorizontal = true,
+            imageIndex = 3),
+        GridItem(id = "3", position = Offset(0f, 2f), length = 2, isHorizontal = false,
+            imageIndex = 4),
+        GridItem(id = "4", position = Offset(1f, 2f), length = 2, isHorizontal = false,
+            imageIndex = 5),
+        GridItem(id = "5", position = Offset(2f, 2f), length = 3, isHorizontal = true,
+            imageIndex = 6),
+        GridItem(id = "6", position = Offset(2f, 3f), length = 2, isHorizontal = true,
+            imageIndex = 7),
+        GridItem(id = "7", position = Offset(4f, 3f), length = 2, isHorizontal = true,
+            imageIndex = 8),
+        GridItem(id = "8", position = Offset(0f, 4f), length = 2, isHorizontal = true,
+            imageIndex = 9),
+        GridItem(id = "9", position = Offset(0f, 5f), length = 2, isHorizontal = true,
+            imageIndex = 10),
+    )
+    val mockGameState = GameState(
+        isGameComplete = false,
+        selectedVehicleId = null,
+        gridItems = mockGridItems
+    )
 
-    Box(
-        modifier = Modifier
-            .size(width = boardSize, height = boardSize + cellSize)
-            .padding(top = cellSize)
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .size(boardSize)
-        ) {
-            GridBackground(boardSize)
-        }
-        GoalCell(
-            cellSize = cellSize
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .size(boardSize)
-        ) {
-            gameState.gridItems.forEach { vehicle ->
-                SpaceObjectItem(
-                    gridItem = vehicle,
-                    isSelected = vehicle.id == gameState.selectedVehicleId,
-                    onSelect = { onVehicleSelect(vehicle.id) },
-                    cellSize = cellSize,
-                    ambulanceIcon = ambulanceIcon,
-                    planetIcons = planetIcons
-                )
-            }
-        }
-    }
+    PuzzleScreen(
+        gameState = mockGameState,
+        levelIndex = 1,
+        isPremiumUser = false,
+        isTutorialCompleted = true,
+        selectVehicle = {},
+        moveVehicle = { _, _ -> },
+        initializeGame = {},
+        onNavigateToLevel = {},
+        onBackToLevelSelection = {}
+    )
 }
