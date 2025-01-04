@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.hakutogames.galaxycross.domain.GridItem
 import com.hakutogames.galaxycross.R
+import com.hakutogames.galaxycross.domain.GridItem
 
 @Composable
 fun GridItemControl(
@@ -52,13 +52,13 @@ fun GridItemControl(
                         gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
                         !gridItem.isHorizontal -> Color.White
                         else -> Color.White.copy(alpha = inactiveIconAlpha)
-                    }
-                )
+                    },
+                ),
             )
         }
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(64.dp)
+            horizontalArrangement = Arrangement.spacedBy(64.dp),
         ) {
             // 左方向のボタン
             IconButton(
@@ -80,8 +80,8 @@ fun GridItemControl(
                             gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
                             gridItem.isHorizontal -> Color.White
                             else -> Color.White.copy(alpha = inactiveIconAlpha)
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 
@@ -105,8 +105,8 @@ fun GridItemControl(
                             gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
                             gridItem.isHorizontal -> Color.White
                             else -> Color.White.copy(alpha = inactiveIconAlpha)
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         }
@@ -131,8 +131,8 @@ fun GridItemControl(
                         gridItem == null -> Color.White.copy(alpha = inactiveIconAlpha)
                         !gridItem.isHorizontal -> Color.White
                         else -> Color.White.copy(alpha = inactiveIconAlpha)
-                    }
-                )
+                    },
+                ),
             )
         }
     }

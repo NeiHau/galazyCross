@@ -1,8 +1,6 @@
 package com.hakutogames.galaxycross.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.hakutogames.galaxycross.local.db.BillingDataStore
 import com.hakutogames.galaxycross.local.db.ClearedLevelsDataStore
 import com.hakutogames.galaxycross.repository.BillingRepository
@@ -22,7 +20,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideGameRepository(
-        clearedLevelsDataStore: ClearedLevelsDataStore
+        clearedLevelsDataStore: ClearedLevelsDataStore,
     ): GameRepository {
         return GameRepositoryImpl(clearedLevelsDataStore)
     }
@@ -31,7 +29,7 @@ object RepositoryModule {
     @Singleton
     fun provideBillingRepository(
         @ApplicationContext context: Context,
-        dataStore: BillingDataStore
+        dataStore: BillingDataStore,
     ): BillingRepository {
         return BillingRepositoryImpl(context, dataStore)
     }

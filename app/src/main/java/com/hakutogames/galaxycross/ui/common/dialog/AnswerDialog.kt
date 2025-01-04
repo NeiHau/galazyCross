@@ -44,7 +44,7 @@ class AssetDataSourceFactory(private val context: Context) : DataSource.Factory 
 @Composable
 fun AnswerDialog(
     onDismiss: () -> Unit,
-    levelIndex: Int
+    levelIndex: Int,
 ) {
     val context = LocalContext.current
     val assetName = "level_${levelIndex + 1}_answer.mp4"
@@ -84,7 +84,7 @@ fun AnswerDialog(
                 modifier = Modifier
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     modifier = Modifier.padding(bottom = 16.dp),

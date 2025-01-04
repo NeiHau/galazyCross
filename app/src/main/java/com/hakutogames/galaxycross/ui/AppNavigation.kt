@@ -45,7 +45,7 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.LevelSelection.route
+        startDestination = Screen.LevelSelection.route,
     ) {
         composable(Screen.LevelSelection.route) {
             LevelSelectionScreen(
@@ -76,8 +76,8 @@ fun AppNavigation(
         composable(
             route = Screen.Game.route,
             arguments = listOf(
-                navArgument("levelIndex") { type = NavType.IntType }
-            )
+                navArgument("levelIndex") { type = NavType.IntType },
+            ),
         ) { backStackEntry ->
             val levelIndex = backStackEntry.arguments?.getInt("levelIndex") ?: 0
 
@@ -107,7 +107,7 @@ fun AppNavigation(
                     navController.navigate(Screen.LevelSelection.route) {
                         popUpTo(0)
                     }
-                }
+                },
             )
         }
 
@@ -126,7 +126,7 @@ fun AppNavigation(
             TermsScreen(
                 onBackButtonTapped = {
                     navController.popBackStack()
-                }
+                },
             )
         }
     }

@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                                     duration = SnackbarDuration.Short,
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }

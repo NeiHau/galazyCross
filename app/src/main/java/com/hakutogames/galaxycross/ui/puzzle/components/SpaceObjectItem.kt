@@ -36,7 +36,9 @@ fun SpaceObjectItem(
     val planetIcon = remember(gridItem.imageIndex) {
         if (!gridItem.isTarget && gridItem.imageIndex > 0 && gridItem.imageIndex <= planetIcons.size) {
             planetIcons[gridItem.imageIndex - 1]
-        } else null
+        } else {
+            null
+        }
     }
 
     Box(
@@ -45,25 +47,25 @@ fun SpaceObjectItem(
             .offset {
                 IntOffset(
                     x = (gridItem.position.x * cellSize.toPx()).roundToInt(),
-                    y = (gridItem.position.y * cellSize.toPx()).roundToInt()
+                    y = (gridItem.position.y * cellSize.toPx()).roundToInt(),
                 )
             }
             .size(
                 width = if (gridItem.isHorizontal) cellSize * gridItem.length else cellSize,
-                height = if (!gridItem.isHorizontal) cellSize * gridItem.length else cellSize
+                height = if (!gridItem.isHorizontal) cellSize * gridItem.length else cellSize,
             )
             .background(
                 color = if (gridItem.isTarget) Color.Red else Color.Blue,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp),
             )
             .border(
                 width = if (isSelected) 2.dp else 0.dp,
                 color = Color.Yellow,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp),
             )
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { onSelect() })
-            }
+            },
     ) {
         when {
             gridItem.isTarget -> {
@@ -73,7 +75,7 @@ fun SpaceObjectItem(
                         .padding(4.dp),
                     contentScale = ContentScale.FillBounds,
                     painter = ambulanceIcon,
-                    contentDescription = "Target Vehicle"
+                    contentDescription = "Target Vehicle",
                 )
             }
             planetIcon != null -> {
@@ -83,7 +85,7 @@ fun SpaceObjectItem(
                         .padding(4.dp),
                     contentScale = ContentScale.Fit,
                     painter = planetIcon,
-                    contentDescription = "Planet ${gridItem.imageIndex}"
+                    contentDescription = "Planet ${gridItem.imageIndex}",
                 )
             }
         }

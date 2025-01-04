@@ -16,28 +16,27 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun TutorialAnimationView(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("tutorial_lottie.json"))
     val progress by animateLottieCompositionAsState(
         composition,
-        iterations = LottieConstants.IterateForever
+        iterations = LottieConstants.IterateForever,
     )
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         LottieAnimation(
             composition = composition,
             progress = { progress },
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

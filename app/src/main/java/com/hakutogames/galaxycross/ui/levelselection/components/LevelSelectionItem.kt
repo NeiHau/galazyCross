@@ -38,7 +38,7 @@ fun LevelSelectionItem(
     isEnabled: Boolean,
     isCleared: Boolean,
     requiresPremium: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val stateDescription = when {
         requiresPremium -> "プレミアム機能未解除"
@@ -65,20 +65,20 @@ fun LevelSelectionItem(
                 requiresPremium -> MaterialTheme.colorScheme.secondaryContainer
                 isEnabled -> MaterialTheme.colorScheme.surface
                 else -> Color.Gray
-            }
-        )
+            },
+        ),
     ) {
         if (requiresPremium && levelNumber >= 16) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
                 Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = "レベル $levelNumber",
@@ -100,14 +100,14 @@ fun LevelSelectionItem(
                             .height(44.dp),
                         onClick = onClick,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        )
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        ),
                     ) {
                         Text(
                             text = "タップして購入する",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -115,7 +115,7 @@ fun LevelSelectionItem(
                     imageVector = Icons.Default.Lock,
                     contentDescription = null,
                     modifier = Modifier.align(Alignment.CenterEnd),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
         } else {
@@ -127,28 +127,30 @@ fun LevelSelectionItem(
                             Modifier.clickable(onClick = onClick)
                         } else {
                             Modifier
-                        }
+                        },
                     )
                     .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(
                         text = "レベル $levelNumber",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (isEnabled || requiresPremium)
+                        color = if (isEnabled || requiresPremium) {
                             MaterialTheme.colorScheme.onSurface
-                        else Color.LightGray
+                        } else {
+                            Color.LightGray
+                        },
                     )
                 }
 
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = null,
-                    tint = if (isCleared) Color(0xFFFFC20E) else Color.Gray
+                    tint = if (isCleared) Color(0xFFFFC20E) else Color.Gray,
                 )
             }
         }

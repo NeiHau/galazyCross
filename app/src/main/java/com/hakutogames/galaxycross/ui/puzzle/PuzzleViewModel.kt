@@ -36,7 +36,7 @@ class PuzzleViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = false
+            initialValue = false,
         )
 
     // チュートリアル完了処理
@@ -60,7 +60,7 @@ class PuzzleViewModel @Inject constructor(
             currentState.copy(
                 gridItems = vehicles,
                 selectedVehicleId = null,
-                isGameComplete = false
+                isGameComplete = false,
             )
         }
     }
@@ -88,16 +88,18 @@ class PuzzleViewModel @Inject constructor(
                             position = newPosition.copy(
                                 x = newPosition.x.coerceIn(
                                     0f,
-                                    BOARD_SIZE - (if (v.isHorizontal) v.length else 1).toFloat()
+                                    BOARD_SIZE - (if (v.isHorizontal) v.length else 1).toFloat(),
                                 ),
                                 y = newPosition.y.coerceIn(
-                                    minY,  // ターゲットはゴールまで移動可能
-                                    BOARD_SIZE - (if (!v.isHorizontal) v.length else 1).toFloat()
-                                )
-                            )
+                                    minY, // ターゲットはゴールまで移動可能
+                                    BOARD_SIZE - (if (!v.isHorizontal) v.length else 1).toFloat(),
+                                ),
+                            ),
                         )
-                    } else v
-                }
+                    } else {
+                        v
+                    }
+                },
             )
 
             val finalState = checkWin(stateWithMovedVehicle)
@@ -115,13 +117,13 @@ class PuzzleViewModel @Inject constructor(
         // ターゲット車両が占有しているマス一覧を取得
         val occupiedTiles = if (targetVehicle.isHorizontal) {
             val xStart = targetVehicle.position.x.toInt()
-            val xEnd   = (targetVehicle.position.x + targetVehicle.length).toInt() - 1
-            val y      = targetVehicle.position.y.toInt()
+            val xEnd = (targetVehicle.position.x + targetVehicle.length).toInt() - 1
+            val y = targetVehicle.position.y.toInt()
             (xStart..xEnd).map { x -> x to y }
         } else {
             val yStart = targetVehicle.position.y.toInt()
-            val yEnd   = (targetVehicle.position.y + targetVehicle.length).toInt() - 1
-            val x      = targetVehicle.position.x.toInt()
+            val yEnd = (targetVehicle.position.y + targetVehicle.length).toInt() - 1
+            val x = targetVehicle.position.x.toInt()
             (yStart..yEnd).map { y -> x to y }
         }
 
@@ -138,7 +140,6 @@ class PuzzleViewModel @Inject constructor(
         return abs(a - b) < epsilon
     }
 
-
     private fun markLevelCleared(level: Int) {
         viewModelScope.launch {
             gameRepository.addClearedLevel(level)
@@ -148,7 +149,7 @@ class PuzzleViewModel @Inject constructor(
     private fun isValidPosition(
         gridItem: GridItem,
         newPosition: Offset,
-        gridItems: List<GridItem>
+        gridItems: List<GridItem>,
     ): Boolean {
         // まずターゲット車両かどうかで、有効な Y 座標範囲を変える
         val validYRange = if (gridItem.isTarget) {
@@ -162,13 +163,13 @@ class PuzzleViewModel @Inject constructor(
         // 車両が占有しようとするマス(タイル)を割り出す
         val vehicleBounds = if (gridItem.isHorizontal) {
             val startX = newPosition.x.toInt()
-            val endX   = (newPosition.x + gridItem.length).toInt() - 1
-            val y      = newPosition.y.toInt()
+            val endX = (newPosition.x + gridItem.length).toInt() - 1
+            val y = newPosition.y.toInt()
             (startX..endX).map { x -> Pair(x, y) }
         } else {
             val startY = newPosition.y.toInt()
-            val endY   = (newPosition.y + gridItem.length).toInt() - 1
-            val x      = newPosition.x.toInt()
+            val endY = (newPosition.y + gridItem.length).toInt() - 1
+            val x = newPosition.x.toInt()
             (startY..endY).map { y -> Pair(x, y) }
         }
 
@@ -177,7 +178,7 @@ class PuzzleViewModel @Inject constructor(
         // x については 0 <= x < BOARD_SIZE に収まる必要がある。
         if (vehicleBounds.any { (x, y) ->
                 x !in 0 until BOARD_SIZE ||
-                        y !in validYRange
+                    y !in validYRange
             }
         ) {
             // 範囲外なら無効
@@ -190,13 +191,13 @@ class PuzzleViewModel @Inject constructor(
             .flatMap { other ->
                 if (other.isHorizontal) {
                     val startX = other.position.x.toInt()
-                    val endX   = (other.position.x + other.length).toInt() - 1
-                    val y      = other.position.y.toInt()
+                    val endX = (other.position.x + other.length).toInt() - 1
+                    val y = other.position.y.toInt()
                     (startX..endX).map { x -> Pair(x, y) }
                 } else {
                     val startY = other.position.y.toInt()
-                    val endY   = (other.position.y + other.length).toInt() - 1
-                    val x      = other.position.x.toInt()
+                    val endY = (other.position.y + other.length).toInt() - 1
+                    val x = other.position.x.toInt()
                     (startY..endY).map { y -> Pair(x, y) }
                 }
             }
@@ -213,7 +214,7 @@ class PuzzleViewModel @Inject constructor(
 
     companion object {
         const val BOARD_SIZE = 6
-        const val GOAL_X = 2f      // ゴールのX座標（左から3つ目）
-        const val GOAL_Y = -1f     // ゴールのY座標（グリッドの1マス上）
+        const val GOAL_X = 2f // ゴールのX座標（左から3つ目）
+        const val GOAL_Y = -1f // ゴールのY座標（グリッドの1マス上）
     }
 }

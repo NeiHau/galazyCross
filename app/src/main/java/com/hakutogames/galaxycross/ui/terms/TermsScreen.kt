@@ -52,7 +52,7 @@ fun TermsScreen(onBackButtonTapped: () -> Unit) {
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 // 利用規約のテキストをスクロール可能なビューで表示
                 Text(
@@ -60,10 +60,10 @@ fun TermsScreen(onBackButtonTapped: () -> Unit) {
                     modifier = Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState()),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
-        }
+        },
     )
 }

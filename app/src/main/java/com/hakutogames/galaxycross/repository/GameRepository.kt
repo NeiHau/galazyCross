@@ -11,9 +11,8 @@ interface GameRepository {
     suspend fun completeTutorial()
 }
 
-
 class GameRepositoryImpl @Inject constructor(
-    private val clearedLevelsDataStore: ClearedLevelsDataStore
+    private val clearedLevelsDataStore: ClearedLevelsDataStore,
 ) : GameRepository {
 
     override fun getClearedLevelsFlow(): Flow<Set<Int>> = clearedLevelsDataStore.clearedLevels

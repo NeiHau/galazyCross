@@ -19,27 +19,27 @@ import kotlin.math.roundToInt
 
 @Composable
 fun GoalCell(
-    cellSize: Dp
+    cellSize: Dp,
 ) {
     Box(
         modifier = Modifier
             .offset {
                 IntOffset(
                     x = (2 * cellSize.toPx()).roundToInt(),
-                    y = (-cellSize.toPx()).roundToInt()
+                    y = (-cellSize.toPx()).roundToInt(),
                 )
             }
             .size(cellSize)
             .background(
                 color = Color.Red,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp),
             )
             .border(
                 width = 1.dp,
                 color = Color.Green,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp),
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = "ゴール",

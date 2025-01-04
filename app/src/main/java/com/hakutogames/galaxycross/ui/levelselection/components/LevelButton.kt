@@ -19,7 +19,7 @@ fun LevelButton(
         onClick = onClick,
         modifier = Modifier
             .aspectRatio(1f)
-            .padding(4.dp)
+            .padding(4.dp),
     ) {
         Text(
             text = levelNumber.toString(),

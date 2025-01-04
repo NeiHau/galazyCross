@@ -17,7 +17,7 @@ class BillingDataStore @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     private val Context.billingDataStore by preferencesDataStore(
-        name = "billing_preferences"
+        name = "billing_preferences",
     )
 
     // プレミアム課金状態を取得するFlow
@@ -37,7 +37,7 @@ class BillingDataStore @Inject constructor(
     suspend fun savePurchaseInfo(
         purchaseToken: String,
         purchaseTime: Long,
-        orderId: String
+        orderId: String,
     ) {
         context.billingDataStore.edit { preferences ->
             preferences[PURCHASE_TOKEN_KEY] = purchaseToken

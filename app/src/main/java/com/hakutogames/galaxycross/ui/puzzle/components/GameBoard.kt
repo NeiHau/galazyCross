@@ -24,22 +24,22 @@ fun GameBoard(
     Box(
         modifier = Modifier
             .size(width = boardSize, height = boardSize + cellSize)
-            .padding(top = cellSize)
+            .padding(top = cellSize),
     ) {
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .size(boardSize)
+                .size(boardSize),
         ) {
             GridBackground(boardSize)
         }
         GoalCell(
-            cellSize = cellSize
+            cellSize = cellSize,
         )
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .size(boardSize)
+                .size(boardSize),
         ) {
             gameState.gridItems.forEach { vehicle ->
                 SpaceObjectItem(
@@ -48,7 +48,7 @@ fun GameBoard(
                     onSelect = { onVehicleSelect(vehicle.id) },
                     cellSize = cellSize,
                     ambulanceIcon = ambulanceIcon,
-                    planetIcons = planetIcons
+                    planetIcons = planetIcons,
                 )
             }
         }

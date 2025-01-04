@@ -101,7 +101,7 @@ fun LevelSelectionScreen(
 @Composable
 private fun LevelSelectionScreen(
     clearedLevels: Set<Int>,
-    scrollToLevelIndex: Int?,  // nullableに変更
+    scrollToLevelIndex: Int?, // nullableに変更
     premiumCannotBuyText: String,
     availableLevelCount: Int,
     isTutorialCompleted: Boolean,
@@ -128,7 +128,7 @@ private fun LevelSelectionScreen(
                     coroutineScope.launch {
                         listState.animateScrollToItem(
                             index = index,
-                            scrollOffset = 0
+                            scrollOffset = 0,
                         )
                         Log.d("LevelSelectionScreen", "Scroll completed successfully")
                         // スクロール完了後に少し待ってからクリア
@@ -157,10 +157,12 @@ private fun LevelSelectionScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = stringResource(R.string.level_selection_appbar_icon_contentDescription),
+                            contentDescription = stringResource(
+                                R.string.level_selection_appbar_icon_contentDescription,
+                            ),
                         )
                     }
-                }
+                },
             )
         },
     ) { paddingValues ->
@@ -173,7 +175,7 @@ private fun LevelSelectionScreen(
             if (!isTutorialCompleted) {
                 TutorialCard(
                     onClick = onTutorialSelect,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp),
                 )
             }
 
@@ -184,7 +186,7 @@ private fun LevelSelectionScreen(
             ) {
                 items(
                     count = availableLevelCount,
-                    key = { index -> index }
+                    key = { index -> index },
                 ) { index ->
                     val isEnabled = when {
                         index < 15 -> {
@@ -218,19 +220,18 @@ private fun LevelSelectionScreen(
                             } else {
                                 onLevelSelect(index)
                             }
-                        }
+                        },
                     )
                 }
             }
-
         }
     }
 }
 
-//// プレミアム購入後のUIを表示
-//@Preview(showBackground = true)
-//@Composable
-//fun LevelSelectionScreenPremiumPreview() {
+// // プレミアム購入後のUIを表示
+// @Preview(showBackground = true)
+// @Composable
+// fun LevelSelectionScreenPremiumPreview() {
 //    val clearedLevels = setOf(0, 1, 2, 3, 4, 5)
 //    val premiumCannotBuyText = "購入プロセスを開始できません"
 //
@@ -246,13 +247,13 @@ private fun LevelSelectionScreen(
 //        onSettingIconTapped = {},
 //        onStartPremiumPurchase = {}
 //    )
-//}
+// }
 //
 //
-//// プレミアム購入前のUIを表示
-//@Preview(showBackground = true)
-//@Composable
-//fun LevelSelectionScreenNonPremiumPreview() {
+// // プレミアム購入前のUIを表示
+// @Preview(showBackground = true)
+// @Composable
+// fun LevelSelectionScreenNonPremiumPreview() {
 //    val clearedLevels = setOf(0, 1, 2, 3, 4, 5)
 //    val premiumCannotBuyText = "購入プロセスを開始できません"
 //
@@ -268,4 +269,4 @@ private fun LevelSelectionScreen(
 //        onSettingIconTapped = {},
 //        onStartPremiumPurchase = {}
 //    )
-//}
+// }

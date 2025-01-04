@@ -8,5 +8,5 @@ data class GridItem(
     val length: Int,
     val isHorizontal: Boolean,
     val isTarget: Boolean = false,
-    val imageIndex: Int = 0
+    val imageIndex: Int = 0,
 )

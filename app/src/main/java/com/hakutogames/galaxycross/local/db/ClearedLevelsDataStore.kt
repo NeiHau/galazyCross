@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ClearedLevelsDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) {
     private val Context.dataStore by preferencesDataStore("cleared_levels")
 
@@ -50,5 +50,3 @@ class ClearedLevelsDataStore @Inject constructor(
         }
     }
 }
-
-

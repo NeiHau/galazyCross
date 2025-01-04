@@ -18,7 +18,7 @@ object DataStoreModule {
     @Provides
     @Singleton
     fun provideClearedLevelsDataStore(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): ClearedLevelsDataStore {
         return ClearedLevelsDataStore(context)
     }
@@ -26,7 +26,7 @@ object DataStoreModule {
     @Provides
     @Singleton
     fun provideBillingDataStore(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): BillingDataStore {
         return BillingDataStore(context)
     }

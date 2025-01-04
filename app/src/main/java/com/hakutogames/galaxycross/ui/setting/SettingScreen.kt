@@ -58,7 +58,7 @@ fun SettingsScreen(
                 title = {
                     Text(
                         text = "設定",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
                     )
                 },
                 navigationIcon = {
@@ -66,10 +66,10 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "戻る",
-                            tint = if (isDarkTheme) Color.White else Color.Black
+                            tint = if (isDarkTheme) Color.White else Color.Black,
                         )
                     }
-                }
+                },
             )
         },
     ) { paddingValues ->
@@ -78,7 +78,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(top = 24.dp)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
         ) {
             SettingContentsList(
                 modifier = Modifier
@@ -110,20 +110,19 @@ fun SettingsScreen(
                         }
                     }
                 },
-                isDarkTheme = isDarkTheme
+                isDarkTheme = isDarkTheme,
             )
             VersionInfoText(isDarkTheme = isDarkTheme)
         }
     }
 }
 
-
 @Composable
 private fun VersionInfoText(isDarkTheme: Boolean) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = if(isDarkTheme) Color.Red else Color.Transparent)
+            .background(color = if (isDarkTheme) Color.Red else Color.Transparent)
             .padding(horizontal = 16.dp, vertical = 24.dp),
         text = "Version ${BuildConfig.VERSION_NAME}",
         color = if (isDarkTheme) Color.White else Color.Black,
@@ -132,8 +131,6 @@ private fun VersionInfoText(isDarkTheme: Boolean) {
         fontWeight = FontWeight.Bold,
     )
 }
-
-
 
 @Composable
 fun SettingContentsList(
@@ -160,7 +157,7 @@ fun SettingContentsList(
                 SettingItem.Contact -> onContactTapped()
             }
         },
-        isDarkTheme = isDarkTheme
+        isDarkTheme = isDarkTheme,
     )
 }
 
@@ -169,7 +166,7 @@ fun SettingContentsListBody(
     modifier: Modifier = Modifier,
     sections: List<SettingsSection>,
     onItemClicked: (SettingItem) -> Unit,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
 ) {
     Column(
         modifier = modifier
@@ -181,7 +178,7 @@ fun SettingContentsListBody(
             SettingsSectionContainer(
                 items = section.items,
                 onItemClicked = onItemClicked,
-                isDarkTheme = isDarkTheme
+                isDarkTheme = isDarkTheme,
             )
             if (index != sections.size - 1) {
                 Spacer(modifier = Modifier.height(36.dp))
@@ -202,7 +199,7 @@ private fun SettingsSectionContainer(
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.surface,
-        shadowElevation = 2.dp
+        shadowElevation = 2.dp,
     ) {
         Column {
             items.forEachIndexed { index, (item, text) ->
@@ -210,18 +207,24 @@ private fun SettingsSectionContainer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onItemClicked(item) }
-                        .padding(vertical = 16.dp, horizontal = 16.dp)
+                        .padding(vertical = 16.dp, horizontal = 16.dp),
                 ) {
                     Text(
                         text = text,
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = if (isDarkTheme) Color.Black else MaterialTheme.colorScheme.onSurface
+                        color = if (isDarkTheme) Color.Black else MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 if (index != items.size - 1) {
                     HorizontalDivider(
                         thickness = 1.dp,
-                        color = if (isDarkTheme) Color.Black else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                        color = if (isDarkTheme) {
+                            Color.Black
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = 0.12f,
+                            )
+                        },
                     )
                 }
             }

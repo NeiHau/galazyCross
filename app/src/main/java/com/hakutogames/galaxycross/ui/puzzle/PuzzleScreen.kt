@@ -143,7 +143,7 @@ private fun PuzzleScreen(
                     },
                     navigationIcon = {
                         IconButton(
-                            onClick = { onBackToLevelSelection(null) }
+                            onClick = { onBackToLevelSelection(null) },
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -159,14 +159,14 @@ private fun PuzzleScreen(
                                 contentDescription = "回答動画を表示",
                             )
                         }
-                    }
+                    },
                 )
-            }
+            },
         ) { paddingValues ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(MaterialTheme.colorScheme.background),
             ) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
@@ -189,7 +189,7 @@ private fun PuzzleScreen(
                         .clip(RoundedCornerShape(16.dp))
                         .background(Color.White),
                     onClick = { initializeGame(levelIndex) },
-                    enabled = !gameState.isGameComplete
+                    enabled = !gameState.isGameComplete,
                 ) {
                     Text(
                         text = "リセット",
@@ -213,7 +213,7 @@ private fun PuzzleScreen(
                         gameState.selectedVehicleId?.let { selectedId ->
                             moveVehicle(selectedId, offset)
                         }
-                    }
+                    },
                 )
             }
         }
@@ -224,7 +224,7 @@ private fun PuzzleScreen(
                     onDismiss = { showTutorial = false },
                     onStartGame = {
                         showTutorial = false
-                    }
+                    },
                 )
             }
             showDialog && gameState.isGameComplete -> {
@@ -244,7 +244,7 @@ private fun PuzzleScreen(
                         showDialog = false
                         focusManager.clearFocus()
                         onBackToLevelSelection(scrollIndex)
-                    }
+                    },
                 )
             }
             showAnswerDialog -> {
@@ -263,7 +263,7 @@ fun GridBackground(boardSize: Dp) {
         Box(
             modifier = Modifier
                 .size(boardSize)
-                .background(Color(0xFFC5C5C5))
+                .background(Color(0xFFC5C5C5)),
         )
         // グリッド線の描画
         Canvas(modifier = Modifier.size(boardSize)) {
@@ -304,31 +304,82 @@ fun GridBackground(boardSize: Dp) {
 @Composable
 fun PuzzleScreenPreview() {
     val mockGridItems = listOf(
-        GridItem(id = "0", position = Offset(2f, 4f), length = 2, isHorizontal = false,
-            isTarget = true, imageIndex = 1),
-        GridItem(id = "1", position = Offset(0f, 1f), length = 2, isHorizontal = true,
-            imageIndex = 2),
-        GridItem(id = "2", position = Offset(3f, 1f), length = 2, isHorizontal = true,
-            imageIndex = 3),
-        GridItem(id = "3", position = Offset(0f, 2f), length = 2, isHorizontal = false,
-            imageIndex = 4),
-        GridItem(id = "4", position = Offset(1f, 2f), length = 2, isHorizontal = false,
-            imageIndex = 5),
-        GridItem(id = "5", position = Offset(2f, 2f), length = 3, isHorizontal = true,
-            imageIndex = 6),
-        GridItem(id = "6", position = Offset(2f, 3f), length = 2, isHorizontal = true,
-            imageIndex = 7),
-        GridItem(id = "7", position = Offset(4f, 3f), length = 2, isHorizontal = true,
-            imageIndex = 8),
-        GridItem(id = "8", position = Offset(0f, 4f), length = 2, isHorizontal = true,
-            imageIndex = 9),
-        GridItem(id = "9", position = Offset(0f, 5f), length = 2, isHorizontal = true,
-            imageIndex = 10),
+        GridItem(
+            id = "0",
+            position = Offset(2f, 4f),
+            length = 2,
+            isHorizontal = false,
+            isTarget = true,
+            imageIndex = 1,
+        ),
+        GridItem(
+            id = "1",
+            position = Offset(0f, 1f),
+            length = 2,
+            isHorizontal = true,
+            imageIndex = 2,
+        ),
+        GridItem(
+            id = "2",
+            position = Offset(3f, 1f),
+            length = 2,
+            isHorizontal = true,
+            imageIndex = 3,
+        ),
+        GridItem(
+            id = "3",
+            position = Offset(0f, 2f),
+            length = 2,
+            isHorizontal = false,
+            imageIndex = 4,
+        ),
+        GridItem(
+            id = "4",
+            position = Offset(1f, 2f),
+            length = 2,
+            isHorizontal = false,
+            imageIndex = 5,
+        ),
+        GridItem(
+            id = "5",
+            position = Offset(2f, 2f),
+            length = 3,
+            isHorizontal = true,
+            imageIndex = 6,
+        ),
+        GridItem(
+            id = "6",
+            position = Offset(2f, 3f),
+            length = 2,
+            isHorizontal = true,
+            imageIndex = 7,
+        ),
+        GridItem(
+            id = "7",
+            position = Offset(4f, 3f),
+            length = 2,
+            isHorizontal = true,
+            imageIndex = 8,
+        ),
+        GridItem(
+            id = "8",
+            position = Offset(0f, 4f),
+            length = 2,
+            isHorizontal = true,
+            imageIndex = 9,
+        ),
+        GridItem(
+            id = "9",
+            position = Offset(0f, 5f),
+            length = 2,
+            isHorizontal = true,
+            imageIndex = 10,
+        ),
     )
     val mockGameState = GameState(
         isGameComplete = false,
         selectedVehicleId = null,
-        gridItems = mockGridItems
+        gridItems = mockGridItems,
     )
 
     PuzzleScreen(
@@ -340,6 +391,6 @@ fun PuzzleScreenPreview() {
         moveVehicle = { _, _ -> },
         initializeGame = {},
         onNavigateToLevel = {},
-        onBackToLevelSelection = {}
+        onBackToLevelSelection = {},
     )
 }

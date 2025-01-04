@@ -36,8 +36,8 @@ fun TutorialDialog(
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+            usePlatformDefaultWidth = false,
+        ),
     ) {
         val configuration = LocalConfiguration.current
         val screenWidth = configuration.screenWidthDp.dp
@@ -49,7 +49,7 @@ fun TutorialDialog(
                 .height(screenHeight * 1f),
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp
+            tonalElevation = 8.dp,
         ) {
             Column(
                 modifier = Modifier
@@ -59,13 +59,13 @@ fun TutorialDialog(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     TutorialAnimationView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(screenHeight * 0.48f)
-                            .width(screenWidth * 0.8f)
+                            .width(screenWidth * 0.8f),
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
@@ -99,11 +99,11 @@ fun TutorialDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = RoundedCornerShape(28.dp)
+                    shape = RoundedCornerShape(28.dp),
                 ) {
                     Text(
                         text = "ゲームを開始する",
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp)
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
                     )
                 }
             }
