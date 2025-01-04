@@ -1,6 +1,8 @@
 package com.hakutogames.galaxycross.ui.setting
 
-import android.util.Log
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,8 +37,8 @@ import com.hakutogames.galaxycross.BuildConfig
 
 
 sealed class SettingItem {
-//    data object SystemMode : SettingItem()
     data object Terms : SettingItem()
+    data object Contact : SettingItem()
 }
 
 data class SettingsSection(
@@ -49,6 +52,7 @@ fun SettingsScreen(
     onTermsTapped: () -> Unit,
 ) {
     val isDarkTheme = isSystemInDarkTheme()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -83,6 +87,31 @@ fun SettingsScreen(
                     .padding(horizontal = 12.dp)
                     .weight(1f, fill = false),
                 onTermsTapped = onTermsTapped,
+                onContactTapped = {
+                    val recipient = "geroppa.universe@gmail.com"
+                    val subject = "ギャラクロに関するお問い合わせ"
+                    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:")
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+                        putExtra(Intent.EXTRA_SUBJECT, subject)
+                    }
+
+                    emailIntent.setPackage("com.google.android.gm")
+                    try {
+                        context.startActivity(emailIntent)
+                    } catch (e: ActivityNotFoundException) {
+                        val fallbackIntent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:")
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+                            putExtra(Intent.EXTRA_SUBJECT, subject)
+                        }
+                        try {
+                            context.startActivity(fallbackIntent)
+                        } catch (e: ActivityNotFoundException) {
+                            throw e
+                        }
+                    }
+                },
                 isDarkTheme = isDarkTheme
             )
             VersionInfoText(isDarkTheme = isDarkTheme)
@@ -111,14 +140,15 @@ private fun VersionInfoText(isDarkTheme: Boolean) {
 @Composable
 fun SettingContentsList(
     modifier: Modifier = Modifier,
+    isDarkTheme: Boolean,
     onTermsTapped: () -> Unit,
-    isDarkTheme: Boolean
+    onContactTapped: () -> Unit,
 ) {
     val settingsSections = listOf(
         SettingsSection(
             items = listOf(
-                // SettingItem.SystemMode to "システムモード設定",
                 SettingItem.Terms to "利用規約",
+                SettingItem.Contact to "お問い合わせ",
             ),
         ),
     )
@@ -128,8 +158,8 @@ fun SettingContentsList(
         sections = settingsSections,
         onItemClicked = { item ->
             when (item) {
-                // SettingItem.SystemMode -> {}
                 SettingItem.Terms -> onTermsTapped()
+                SettingItem.Contact -> onContactTapped()
             }
         },
         isDarkTheme = isDarkTheme
