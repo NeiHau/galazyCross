@@ -46,8 +46,6 @@ fun LevelSelectionScreen(
     onTutorialSelect: () -> Unit,
     onSettingIconTapped: () -> Unit,
     isReturningToLevelSelection: Boolean,
-    onGoogleSignInRequested: (actionAfterSignIn: () -> Unit) -> Unit,
-    isLoggedIn: Boolean,
 ) {
     val availableLevelCount = GameLevels.getLevelCount()
     val isPremiumPurchased by viewModel.isPremiumPurchased.collectAsStateWithLifecycle()
@@ -86,15 +84,7 @@ fun LevelSelectionScreen(
         onTutorialSelect = onTutorialSelect,
         onLevelSelect = onLevelSelect,
         onSettingIconTapped = onSettingIconTapped,
-        onStartPremiumPurchase = { activity ->
-            if (!isLoggedIn) {
-                onGoogleSignInRequested {
-                    viewModel.startPremiumPurchase(activity)
-                }
-            } else {
-                viewModel.startPremiumPurchase(activity)
-            }
-        },
+        onStartPremiumPurchase = viewModel::startPremiumPurchase,
         clearScrollToLevelIndex = viewModel::clearScrollToLevelIndex,
     )
 }

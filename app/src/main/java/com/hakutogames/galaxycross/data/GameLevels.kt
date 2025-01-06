@@ -528,7 +528,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル22(32)
+        // レベル22(32) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -554,7 +554,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル23(33)
+        // レベル23(33) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -579,7 +579,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル24(34)
+        // レベル24(34) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(

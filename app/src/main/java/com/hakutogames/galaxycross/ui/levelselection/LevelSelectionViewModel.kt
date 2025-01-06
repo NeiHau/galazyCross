@@ -9,10 +9,8 @@ import com.hakutogames.galaxycross.repository.BillingRepositoryImpl
 import com.hakutogames.galaxycross.ui.ext.asEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,8 +20,7 @@ class LevelSelectionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _isPremiumPurchased = MutableStateFlow(false)
-    val isPremiumPurchased: StateFlow<Boolean> = _isPremiumPurchased.asStateFlow()
+    val isPremiumPurchased: StateFlow<Boolean> = billingRepository.isPremiumPurchased
 
     private val _scrollToLevelIndex = savedStateHandle.getStateFlow<Int?>("scroll_index", null)
     val scrollToLevelIndex: StateFlow<Int?> = _scrollToLevelIndex
@@ -31,45 +28,34 @@ class LevelSelectionViewModel @Inject constructor(
     private val _uiEvent = Channel<UiEvent>(Channel.CONFLATED)
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asEvent()
 
-    init {
-        viewModelScope.launch {
-            billingRepository.currentAccountIdFlow.collect { accountId ->
-                if (accountId != null) {
-                    // アカウントごとの課金状態を監視
-                    billingRepository.getPurchaseState(accountId).collect { isPurchased ->
-                        _isPremiumPurchased.value = isPurchased
-                    }
-                } else {
-                    _isPremiumPurchased.value = false
-                }
-            }
-        }
+    private var isPurchaseInProgress = false
 
+    init {
+        // clearPurchaseByToken("")
         viewModelScope.launch {
             billingRepository.purchaseResult.collect { result ->
+                if (!isPurchaseInProgress) return@collect
+
                 when (result) {
                     is BillingRepository.PurchaseResult.Success -> {
                         _uiEvent.send(UiEvent.PurchaseSuccess)
+                        isPurchaseInProgress = false // 購入プロセスの終了
                     }
-                    is BillingRepository.PurchaseResult.Canceled -> {}
+                    is BillingRepository.PurchaseResult.Canceled -> {
+                        isPurchaseInProgress = false // 購入プロセスの終了
+                    }
                     is BillingRepository.PurchaseResult.Error -> {
                         _uiEvent.send(UiEvent.PurchaseError(result.message))
+                        isPurchaseInProgress = false // 購入プロセスの終了
                     }
                 }
             }
         }
-    }
-
-    // ログイン状態の確認
-    fun isLoggedIn(): Boolean = billingRepository.isLoggedIn()
-
-    // 現在のアカウントIDを設定
-    fun setCurrentAccountId(accountId: String?) {
-        billingRepository.setCurrentAccountId(accountId)
     }
 
     // 課金フローの開始
     fun startPremiumPurchase(activity: Activity) {
+        isPurchaseInProgress = true
         billingRepository.launchBillingFlow(activity)
     }
 
@@ -79,6 +65,12 @@ class LevelSelectionViewModel @Inject constructor(
 
     fun clearScrollToLevelIndex() {
         savedStateHandle["scroll_index"] = null
+    }
+
+    private fun clearPurchaseByToken(purchaseToken: String) {
+        viewModelScope.launch {
+            billingRepository.clearPurchaseByToken(purchaseToken)
+        }
     }
 
     sealed class UiEvent {
