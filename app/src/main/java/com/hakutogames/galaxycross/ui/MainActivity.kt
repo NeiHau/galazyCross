@@ -12,15 +12,23 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
+import com.hakutogames.galaxycross.repository.BillingRepositoryImpl
 import com.hakutogames.galaxycross.ui.theme.GalaxyCrossTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var billingRepository: BillingRepositoryImpl
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        billingRepository.initializeBillingClient()
+
         enableEdgeToEdge()
         setContent {
             GalaxyCrossTheme {

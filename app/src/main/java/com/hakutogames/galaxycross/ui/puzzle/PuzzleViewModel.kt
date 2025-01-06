@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.hakutogames.galaxycross.data.GameLevels
 import com.hakutogames.galaxycross.domain.GameState
 import com.hakutogames.galaxycross.domain.GridItem
+import com.hakutogames.galaxycross.repository.BillingRepository
 import com.hakutogames.galaxycross.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,22 +17,24 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.abs
 
 @HiltViewModel
 class PuzzleViewModel @Inject constructor(
     private val gameRepository: GameRepository,
+    billingRepository: BillingRepository,
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
-    // 現在のレベルを追跡するための変数を追加
     private var currentLevel: Int = 0
+
+    val isPremiumPurchased: StateFlow<Boolean> = billingRepository
+        .getPurchaseState()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val clearedLevels: StateFlow<Set<Int>> = gameRepository.getClearedLevelsFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
-    // チュートリアル完了状態
     val isTutorialCompleted: StateFlow<Boolean> = gameRepository.getIsTutorialCompletedFlow()
         .stateIn(
             scope = viewModelScope,
@@ -39,7 +42,6 @@ class PuzzleViewModel @Inject constructor(
             initialValue = false,
         )
 
-    // チュートリアル完了処理
     fun completeTutorial() {
         viewModelScope.launch {
             gameRepository.completeTutorial()
@@ -134,10 +136,6 @@ class PuzzleViewModel @Inject constructor(
         }
 
         return state.copy(isGameComplete = isWin)
-    }
-
-    private fun isAlmostEqual(a: Float, b: Float, epsilon: Float = 0.1f): Boolean {
-        return abs(a - b) < epsilon
     }
 
     private fun markLevelCleared(level: Int) {

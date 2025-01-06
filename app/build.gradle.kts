@@ -43,7 +43,7 @@ android {
         applicationId = "com.hakutogames.galaxycross"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
+        versionCode = 8
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -67,6 +67,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += "-Xcontext-receivers"
     }
     buildFeatures {
         compose = true

@@ -1,7 +1,6 @@
 package com.hakutogames.galaxycross.ui.levelselection
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,11 +30,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hakutogames.galaxycross.R
 import com.hakutogames.galaxycross.data.GameLevels
 import com.hakutogames.galaxycross.extension.findActivity
-import com.hakutogames.galaxycross.repository.BillingRepository
+import com.hakutogames.galaxycross.ui.ext.observeWithLifecycle
 import com.hakutogames.galaxycross.ui.levelselection.components.LevelSelectionItem
 import com.hakutogames.galaxycross.ui.levelselection.components.TutorialCard
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,28 +54,22 @@ fun LevelSelectionScreen(
     // Snackbarのメッセージを取得
     val premiumUnlockText = stringResource(R.string.premium_unlock)
     val premiumFailureText = stringResource(R.string.premium_failure)
-    val premiumCancelText = stringResource(R.string.premium_cancel)
     val premiumCannotBuyText = stringResource(R.string.premium_cannot_start_buy_process)
 
-    LaunchedEffect(Unit) {
-        if (!isPremiumPurchased && clearedLevels.contains(14) && isReturningToLevelSelection) {
-            viewModel.setScrollToLevelIndex(15)
+    viewModel.uiEvent.observeWithLifecycle { event ->
+        when (event) {
+            is LevelSelectionViewModel.UiEvent.PurchaseSuccess -> {
+                onShowSnackbar(premiumUnlockText)
+            }
+            is LevelSelectionViewModel.UiEvent.PurchaseError -> {
+                onShowSnackbar(premiumFailureText)
+            }
         }
     }
 
     LaunchedEffect(Unit) {
-        viewModel.purchaseResult.collectLatest { purchaseResult ->
-            when (purchaseResult) {
-                is BillingRepository.PurchaseResult.Success -> {
-                    onShowSnackbar(premiumUnlockText)
-                }
-                is BillingRepository.PurchaseResult.Error -> {
-                    onShowSnackbar(premiumFailureText)
-                }
-                is BillingRepository.PurchaseResult.Canceled -> {
-                    onShowSnackbar(premiumCancelText)
-                }
-            }
+        if (!isPremiumPurchased && clearedLevels.contains(14) && isReturningToLevelSelection) {
+            viewModel.setScrollToLevelIndex(15)
         }
     }
 
@@ -101,7 +93,7 @@ fun LevelSelectionScreen(
 @Composable
 private fun LevelSelectionScreen(
     clearedLevels: Set<Int>,
-    scrollToLevelIndex: Int?, // nullableに変更
+    scrollToLevelIndex: Int?,
     premiumCannotBuyText: String,
     availableLevelCount: Int,
     isTutorialCompleted: Boolean,
@@ -120,23 +112,19 @@ private fun LevelSelectionScreen(
 
     LaunchedEffect(scrollToLevelIndex) {
         scrollToLevelIndex?.let { index ->
-            Log.d("LevelSelectionScreen", "Attempting to scroll to index: $index")
             if (index in 0 until availableLevelCount) {
                 try {
-                    // 画面の描画を待つ
                     delay(500)
                     coroutineScope.launch {
                         listState.animateScrollToItem(
                             index = index,
                             scrollOffset = 0,
                         )
-                        Log.d("LevelSelectionScreen", "Scroll completed successfully")
-                        // スクロール完了後に少し待ってからクリア
                         delay(500)
                         clearScrollToLevelIndex()
                     }
                 } catch (e: Exception) {
-                    Log.e("LevelSelectionScreen", "Scroll failed", e)
+                    throw e
                 }
             }
         }
@@ -204,6 +192,7 @@ private fun LevelSelectionScreen(
 
                     LevelSelectionItem(
                         levelNumber = index + 1,
+                        isPremiumUser = isPremiumPurchased,
                         isEnabled = isEnabled,
                         isCleared = isCleared,
                         requiresPremium = requiresPremium,

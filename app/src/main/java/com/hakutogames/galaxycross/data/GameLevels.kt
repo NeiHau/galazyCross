@@ -183,20 +183,19 @@ object GameLevels {
                     isHorizontal = false,
                     isTarget = true,
                 ),
-                GridItem(id = "1", position = Offset(0f, 0f), length = 3, isHorizontal = false),
-                GridItem(id = "2", position = Offset(1f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "3", position = Offset(1f, 0f), length = 2, isHorizontal = true),
-                GridItem(id = "4", position = Offset(1f, 2f), length = 2, isHorizontal = true),
-                GridItem(id = "5", position = Offset(1f, 3f), length = 2, isHorizontal = true),
-                GridItem(id = "6", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "7", position = Offset(5f, 1f), length = 3, isHorizontal = false),
-                GridItem(id = "8", position = Offset(0f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "9", position = Offset(1f, 3f), length = 3, isHorizontal = false),
-                GridItem(id = "10", position = Offset(2f, 3f), length = 2, isHorizontal = true),
-                GridItem(id = "11", position = Offset(4f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "12", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "13", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "14", position = Offset(3f, 0f), length = 3, isHorizontal = true),
+//                GridItem(id = "1", position = Offset(0f, 0f), length = 3, isHorizontal = false),
+//                GridItem(id = "2", position = Offset(1f, 1f), length = 2, isHorizontal = true),
+//                GridItem(id = "3", position = Offset(1f, 0f), length = 2, isHorizontal = true),
+//                GridItem(id = "4", position = Offset(1f, 2f), length = 2, isHorizontal = true),
+//                GridItem(id = "5", position = Offset(3f, 1f), length = 2, isHorizontal = false),
+//                GridItem(id = "6", position = Offset(5f, 1f), length = 3, isHorizontal = false),
+//                GridItem(id = "7", position = Offset(0f, 3f), length = 2, isHorizontal = false),
+//                GridItem(id = "8", position = Offset(1f, 3f), length = 3, isHorizontal = false),
+//                GridItem(id = "9", position = Offset(2f, 3f), length = 2, isHorizontal = true),
+//                GridItem(id = "10", position = Offset(4f, 3f), length = 2, isHorizontal = false),
+//                GridItem(id = "11", position = Offset(5f, 4f), length = 2, isHorizontal = false),
+//                GridItem(id = "12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
+//                GridItem(id = "13", position = Offset(3f, 0f), length = 3, isHorizontal = true),
             ),
         ),
 
@@ -391,57 +390,50 @@ object GameLevels {
 
         // ここから先は課金コンテンツにする
         // 難しい
-        // レベル16
+        // レベル16(26)
         assignPlanetIcons(
             listOf(
                 GridItem(
                     id = "0",
+                    position = Offset(2f, 3f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+//                GridItem(id = "1", position = Offset(1f, 0f), length = 2, isHorizontal = false),
+//                GridItem(id = "2", position = Offset(3f, 0f), length = 2, isHorizontal = false),
+//                GridItem(id = "3", position = Offset(4f, 0f), length = 2, isHorizontal = true),
+//                GridItem(id = "4", position = Offset(4f, 1f), length = 2, isHorizontal = false),
+//                GridItem(id = "5", position = Offset(0f, 2f), length = 2, isHorizontal = true),
+//                GridItem(id = "6", position = Offset(2f, 2f), length = 2, isHorizontal = true),
+//                GridItem(id = "7", position = Offset(3f, 3f), length = 3, isHorizontal = true),
+//                GridItem(id = "8", position = Offset(0f, 5f), length = 3, isHorizontal = true),
+            ),
+        ),
+
+        // レベル17(27) まだ
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "target",
                     position = Offset(2f, 2f),
                     length = 2,
                     isHorizontal = false,
                     isTarget = true,
                 ),
-                GridItem(id = "1", position = Offset(0f, 3f), length = 3, isHorizontal = false),
-                GridItem(id = "2", position = Offset(0f, 2f), length = 2, isHorizontal = true),
-                GridItem(id = "3", position = Offset(1f, 5f), length = 3, isHorizontal = true),
-                GridItem(id = "4", position = Offset(1f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "5", position = Offset(1f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "6", position = Offset(4f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "7", position = Offset(3f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "8", position = Offset(4f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "9", position = Offset(5f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "10", position = Offset(2f, 1f), length = 3, isHorizontal = true),
-                GridItem(id = "11", position = Offset(5f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "12", position = Offset(4f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "1", position = Offset(0f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "2", position = Offset(3f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "3", position = Offset(5f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "4", position = Offset(2f, 1f), length = 3, isHorizontal = true),
+                GridItem(id = "5", position = Offset(3f, 2f), length = 3, isHorizontal = false),
+                GridItem(id = "6", position = Offset(4f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "7", position = Offset(0f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "8", position = Offset(0f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "9", position = Offset(1f, 5f), length = 3, isHorizontal = true),
             ),
         ),
 
-        // レベル17
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(2f, 4f),
-                    length = 2,
-                    isHorizontal = false,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(0f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v2", position = Offset(1f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v3", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(0f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v5", position = Offset(1f, 0f), length = 2, isHorizontal = true),
-                GridItem(id = "v6", position = Offset(2f, 3f), length = 2, isHorizontal = true),
-                GridItem(id = "v7", position = Offset(2f, 2f), length = 2, isHorizontal = true),
-                GridItem(id = "v8", position = Offset(3f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(4f, 0f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-            ),
-        ),
-
-        // レベル18
+        // レベル18(28)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -465,7 +457,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル19
+        // レベル19(29)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -489,7 +481,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル20
+        // レベル20(30)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -516,7 +508,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル21
+        // レベル21(31)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -540,7 +532,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル22
+        // レベル22(32)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -566,7 +558,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル23
+        // レベル23(33)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -591,7 +583,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル24
+        // レベル24(34)
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -616,7 +608,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル25 まだ
+        // レベル25(35) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -642,7 +634,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル26 まだ
+        // レベル26(36) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -668,7 +660,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル27 まだ
+        // レベル27(37) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -694,7 +686,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル28 まだ
+        // レベル28(38) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(

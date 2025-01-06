@@ -38,6 +38,7 @@ fun LevelSelectionItem(
     isEnabled: Boolean,
     isCleared: Boolean,
     requiresPremium: Boolean,
+    isPremiumUser: Boolean,
     onClick: () -> Unit,
 ) {
     val stateDescription = when {
@@ -47,6 +48,13 @@ fun LevelSelectionItem(
         else -> "未開放"
     }
     val cardHeight = if (requiresPremium && levelNumber >= 16) 100.dp else 72.dp
+
+    val containerColorValue = when {
+        requiresPremium && !isPremiumUser && levelNumber >= 16 -> MaterialTheme.colorScheme.secondaryContainer
+        requiresPremium -> MaterialTheme.colorScheme.surface
+        isEnabled -> MaterialTheme.colorScheme.surface
+        else -> Color.Gray
+    }
 
     Card(
         modifier = Modifier
@@ -59,13 +67,9 @@ fun LevelSelectionItem(
                     onClick(label = "レベル ${levelNumber}を選択", action = null)
                 }
             },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = when {
-                requiresPremium -> MaterialTheme.colorScheme.secondaryContainer
-                isEnabled -> MaterialTheme.colorScheme.surface
-                else -> Color.Gray
-            },
+            containerColor = containerColorValue,
         ),
     ) {
         if (requiresPremium && levelNumber >= 16) {

@@ -1,5 +1,6 @@
 package com.hakutogames.galaxycross.ui.common.dialog
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +34,17 @@ fun GameClearDialog(
         "チュートリアル完了！"
     } else {
         "レベル${currentLevel + 1}クリア！"
+    }
+
+    LaunchedEffect(Unit) {
+        Log.d(
+            "GameClearDialog",
+            """
+        currentLevel = $currentLevel
+        isPremiumUser = $isPremiumUser
+        hasNextLevel = $hasNextLevel
+            """.trimIndent(),
+        )
     }
 
     AlertDialog(
@@ -70,8 +83,29 @@ fun GameClearDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (hasNextLevel) {
-                    if (isPremiumUser) {
+                when {
+                    // (2) 無課金ユーザー: レベル15未満
+                    hasNextLevel && !isPremiumUser && currentLevel < 14 -> {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onNextLevel,
+                        ) {
+                            Text("次のレベルへ")
+                        }
+                    }
+
+                    // (3) 課金ユーザー: currentLevel < 16
+                    hasNextLevel && isPremiumUser && currentLevel < 16 -> {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onNextLevel,
+                        ) {
+                            Text("次のレベルへ")
+                        }
+                    }
+
+                    // (1) 課金ユーザー: currentLevel >= 16 (etc.)
+                    hasNextLevel && isPremiumUser -> {
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = onNextLevel,

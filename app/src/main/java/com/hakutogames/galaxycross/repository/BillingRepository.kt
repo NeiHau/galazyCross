@@ -3,7 +3,6 @@ package com.hakutogames.galaxycross.repository
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -78,7 +77,7 @@ class BillingRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun initializeBillingClient() {
+    fun initializeBillingClient() {
         if (billingClient?.isReady == true) return
 
         billingClient = BillingClient.newBuilder(context)
@@ -88,11 +87,6 @@ class BillingRepositoryImpl @Inject constructor(
 
         billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
-                Log.d(
-                    TAG,
-                    "onBillingSetupFinished: responseCode=${billingResult.responseCode}, " +
-                        "debugMessage=${billingResult.debugMessage}",
-                )
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     coroutineScope.launch {
                         _isBillingClientReady.emit(true)
@@ -172,7 +166,11 @@ class BillingRepositoryImpl @Inject constructor(
     }
 
     private fun handlePurchase(purchase: Purchase) {
+        // 対象の商品が含まれているかどうか (単一商品ならこういう判定)
+        if (!purchase.products.contains(PRODUCT_ID)) return
+
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+            // ここから先は「支払い済み」の処理
             if (!purchase.isAcknowledged) {
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
@@ -181,13 +179,7 @@ class BillingRepositoryImpl @Inject constructor(
                 billingClient?.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                         coroutineScope.launch {
-                            purchase.orderId?.let {
-                                billingDataStore.savePurchaseInfo(
-                                    purchaseToken = purchase.purchaseToken,
-                                    purchaseTime = purchase.purchaseTime,
-                                    orderId = it,
-                                )
-                            }
+                            // ここで isPremiumPurchased を true にする
                             billingDataStore.setPremiumPurchased(true)
                             _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                         }
@@ -202,6 +194,7 @@ class BillingRepositoryImpl @Inject constructor(
                     }
                 }
             } else {
+                // すでに承認済みの場合
                 coroutineScope.launch {
                     billingDataStore.setPremiumPurchased(true)
                     _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
@@ -214,20 +207,38 @@ class BillingRepositoryImpl @Inject constructor(
         return billingDataStore.isPremiumPurchased.first()
     }
 
-    private fun queryPurchases() {
+    fun queryPurchases() {
         billingClient?.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build(),
         ) { billingResult, purchases ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                for (purchase in purchases) {
-                    handlePurchase(purchase)
+                // ここで「該当する課金アイテムが購入済みかどうか」をチェック
+                // （複数商品を扱う場合はループして対象アイテムを探す）
+                var foundValidPurchase = false
+                purchases.forEach { purchase ->
+                    if (purchase.products.contains(PRODUCT_ID)) {
+                        // 購入状態が PURCHASED なら handlePurchase
+                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                            handlePurchase(purchase)
+                            foundValidPurchase = true
+                        }
+                    }
+                }
+
+                // 「有効な購入が見つからなかった」なら購入フラグをfalseに更新
+                if (!foundValidPurchase) {
+                    coroutineScope.launch {
+                        billingDataStore.setPremiumPurchased(false)
+                    }
                 }
             } else {
                 coroutineScope.launch {
                     _purchaseResult.emit(
-                        BillingRepository.PurchaseResult.Error("Query purchases failed: ${billingResult.debugMessage}"),
+                        BillingRepository.PurchaseResult.Error(
+                            "Query purchases failed: ${billingResult.debugMessage}",
+                        ),
                     )
                 }
             }
@@ -319,7 +330,6 @@ class BillingRepositoryImpl @Inject constructor(
                                 "responseCode=${billingResult.responseCode}, " +
                                 "debugMessage=${billingResult.debugMessage}",
                         )
-                        Toast.makeText(context, "Failed to retrieve product details", Toast.LENGTH_SHORT).show()
                         coroutineScope.launch {
                             _purchaseResult.emit(
                                 BillingRepository.PurchaseResult.Error(
