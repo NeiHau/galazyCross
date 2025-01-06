@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hakutogames.galaxycross.repository.BillingRepository
+import com.hakutogames.galaxycross.repository.BillingRepositoryImpl
 import com.hakutogames.galaxycross.ui.ext.asEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LevelSelectionViewModel @Inject constructor(
-    private val billingRepository: BillingRepository,
+    private val billingRepository: BillingRepositoryImpl,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -31,6 +32,19 @@ class LevelSelectionViewModel @Inject constructor(
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asEvent()
 
     init {
+        viewModelScope.launch {
+            billingRepository.currentAccountIdFlow.collect { accountId ->
+                if (accountId != null) {
+                    // アカウントごとの課金状態を監視
+                    billingRepository.getPurchaseState(accountId).collect { isPurchased ->
+                        _isPremiumPurchased.value = isPurchased
+                    }
+                } else {
+                    _isPremiumPurchased.value = false
+                }
+            }
+        }
+
         viewModelScope.launch {
             billingRepository.purchaseResult.collect { result ->
                 when (result) {
@@ -46,33 +60,25 @@ class LevelSelectionViewModel @Inject constructor(
         }
     }
 
+    // ログイン状態の確認
+    fun isLoggedIn(): Boolean = billingRepository.isLoggedIn()
+
+    // 現在のアカウントIDを設定
+    fun setCurrentAccountId(accountId: String?) {
+        billingRepository.setCurrentAccountId(accountId)
+    }
+
+    // 課金フローの開始
+    fun startPremiumPurchase(activity: Activity) {
+        billingRepository.launchBillingFlow(activity)
+    }
+
     fun setScrollToLevelIndex(index: Int) {
         savedStateHandle["scroll_index"] = index
     }
 
     fun clearScrollToLevelIndex() {
         savedStateHandle["scroll_index"] = null
-    }
-
-    /**
-     * プレミアム購入フローを開始する
-     * すでに購入済みの場合はイベント通知などで適宜対応
-     */
-    fun startPremiumPurchase(activity: Activity) {
-        viewModelScope.launch {
-            // 「すでに購入済み」を同期的にチェックし、購入フローを起動
-            kotlin.runCatching {
-                if (billingRepository.isPremiumPurchased()) {
-                    throw Exception("Premium is already purchased.")
-                }
-                // 購入フロー開始: ここではまだ「成功」かどうかは不明
-                billingRepository.launchBillingFlow(activity)
-            }
-                .onFailure { throwable ->
-                    // BillingClient未初期化やその他同期的エラーがあればここに来る
-                    _uiEvent.send(UiEvent.PurchaseError(throwable.message))
-                }
-        }
     }
 
     sealed class UiEvent {

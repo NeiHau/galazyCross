@@ -27,16 +27,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
 
 interface BillingRepository {
-    fun getPurchaseState(): StateFlow<Boolean>
+    val currentAccountIdFlow: StateFlow<String?>
     val purchaseResult: SharedFlow<PurchaseResult>
+    fun isLoggedIn(): Boolean
+    fun getPurchaseState(accountId: String): StateFlow<Boolean>
+    fun setCurrentAccountId(id: String?)
     fun launchBillingFlow(activity: Activity)
-    suspend fun isPremiumPurchased(): Boolean
+    suspend fun isPremiumPurchased(accountId: String): Boolean
 
     sealed class PurchaseResult {
         data object Success : PurchaseResult()
@@ -58,8 +60,31 @@ class BillingRepositoryImpl @Inject constructor(
 
     private var billingClient: BillingClient? = null
 
-    private val _purchaseState = MutableStateFlow(false)
-    override fun getPurchaseState(): StateFlow<Boolean> = _purchaseState.asStateFlow()
+    private val _currentAccountIdFlow = MutableStateFlow<String?>(null)
+    override val currentAccountIdFlow: StateFlow<String?> get() = _currentAccountIdFlow
+
+    override fun setCurrentAccountId(id: String?) {
+        _currentAccountIdFlow.value = id
+    }
+
+    val currentAccountId: String?
+        get() = _currentAccountIdFlow.value
+
+    override fun isLoggedIn(): Boolean = (currentAccountId != null)
+
+    // アカウントIDごとのフローを取得する場合は、Flowを引数で作り直すか、
+    // データクラスやMapなどで管理するなど実装パターンは多数あります。
+    // ここではシンプルに "最後に指定されたaccountId" のみに対応する実装例を示します:
+    private val _currentAccountPurchaseState = MutableStateFlow(false)
+    override fun getPurchaseState(accountId: String): StateFlow<Boolean> {
+        // BillingDataStoreのFlowを購読して反映
+        coroutineScope.launch {
+            billingDataStore.isPremiumPurchasedForAccount(accountId).collect { isPurchased ->
+                _currentAccountPurchaseState.emit(isPurchased)
+            }
+        }
+        return _currentAccountPurchaseState.asStateFlow()
+    }
 
     private val _purchaseResult = MutableSharedFlow<BillingRepository.PurchaseResult>()
     override val purchaseResult: SharedFlow<BillingRepository.PurchaseResult> = _purchaseResult.asSharedFlow()
@@ -68,14 +93,6 @@ class BillingRepositoryImpl @Inject constructor(
 
     private val _isBillingClientReady = MutableStateFlow(false)
     private val isBillingClientReady: StateFlow<Boolean> = _isBillingClientReady.asStateFlow()
-
-    init {
-        coroutineScope.launch {
-            billingDataStore.isPremiumPurchased.collect { isPurchased ->
-                _purchaseState.emit(isPurchased)
-            }
-        }
-    }
 
     fun initializeBillingClient() {
         if (billingClient?.isReady == true) return
@@ -119,19 +136,28 @@ class BillingRepositoryImpl @Inject constructor(
         billingResult: BillingResult,
         purchases: MutableList<Purchase>?,
     ) {
-        Log.d(
-            TAG,
-            """
-            Purchase Update Details:
-            Response Code: ${billingResult.responseCode}
-            Debug Message: ${billingResult.debugMessage}
-            Response Code Name: ${getBillingResponseCodeName(billingResult.responseCode)}
-            Purchases Size: ${purchases?.size}
-            Purchase Details: ${purchases?.joinToString { purchase ->
-                "OrderId: ${purchase.orderId}, State: ${purchase.purchaseState}"
-            }}
-            """.trimIndent(),
-        )
+        Log.d(TAG, "onPurchasesUpdated called.")
+
+        // 既存の内容に加えて、responseCodeやdebugMessageをログに追加
+        Log.d(TAG, "BillingResult: code=${billingResult.responseCode}, message=${billingResult.debugMessage}")
+
+        // 詳細なPurchase情報をJSON形式で出してみる（可能な限り）
+        purchases?.forEach { purchase ->
+            Log.d(
+                TAG,
+                """
+            Purchase Info:
+            Purchase JSON: ${purchase.originalJson}
+            Order ID: ${purchase.orderId}
+            Purchase State: ${purchase.purchaseState}
+            Products: ${purchase.products}
+            Package Name: ${purchase.packageName}
+            Purchase Token: ${purchase.purchaseToken}
+            Acknowledged: ${purchase.isAcknowledged}
+            AutoRenewing: ${purchase.isAutoRenewing} // サブスクの場合に有効
+                """.trimIndent(),
+            )
+        }
 
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (purchase in purchases) {
@@ -150,61 +176,44 @@ class BillingRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun getBillingResponseCodeName(responseCode: Int): String {
-        return when (responseCode) {
-            BillingClient.BillingResponseCode.OK -> "OK"
-            BillingClient.BillingResponseCode.USER_CANCELED -> "USER_CANCELED"
-            BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE -> "SERVICE_UNAVAILABLE"
-            BillingClient.BillingResponseCode.BILLING_UNAVAILABLE -> "BILLING_UNAVAILABLE"
-            BillingClient.BillingResponseCode.ITEM_UNAVAILABLE -> "ITEM_UNAVAILABLE"
-            BillingClient.BillingResponseCode.DEVELOPER_ERROR -> "DEVELOPER_ERROR"
-            BillingClient.BillingResponseCode.ERROR -> "ERROR"
-            BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> "ITEM_ALREADY_OWNED"
-            BillingClient.BillingResponseCode.ITEM_NOT_OWNED -> "ITEM_NOT_OWNED"
-            else -> "UNKNOWN"
-        }
-    }
-
     private fun handlePurchase(purchase: Purchase) {
-        // 対象の商品が含まれているかどうか (単一商品ならこういう判定)
+        val obfuscatedAccountId = purchase.accountIdentifiers?.obfuscatedAccountId
         if (!purchase.products.contains(PRODUCT_ID)) return
 
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            // ここから先は「支払い済み」の処理
             if (!purchase.isAcknowledged) {
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
                     .build()
-
-                billingClient?.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                billingClient?.acknowledgePurchase(acknowledgePurchaseParams) { br ->
+                    if (br.responseCode == BillingClient.BillingResponseCode.OK) {
                         coroutineScope.launch {
-                            // ここで isPremiumPurchased を true にする
-                            billingDataStore.setPremiumPurchased(true)
+                            // アカウントIDごとに保存
+                            billingDataStore.setPremiumPurchasedForAccount(obfuscatedAccountId, true)
                             _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                         }
                     } else {
                         coroutineScope.launch {
-                            _purchaseResult.emit(
-                                BillingRepository.PurchaseResult.Error(
-                                    "Acknowledgment failed: ${billingResult.debugMessage}",
-                                ),
-                            )
+                            billingDataStore.setPremiumPurchasedForAccount(obfuscatedAccountId, true)
+                            _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                         }
                     }
                 }
             } else {
-                // すでに承認済みの場合
+                // ★ここで共通キー setPremiumPurchased(true) を呼ばない
+                // 代わりにアカウントID付きで保存する
                 coroutineScope.launch {
-                    billingDataStore.setPremiumPurchased(true)
+                    billingDataStore.setPremiumPurchasedForAccount(obfuscatedAccountId, true)
                     _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
                 }
             }
+        } else {
+            Log.d(TAG, "Purchase state is NOT PURCHASED: ${purchase.purchaseState}. Ignoring.")
         }
     }
 
-    override suspend fun isPremiumPurchased(): Boolean {
-        return billingDataStore.isPremiumPurchased.first()
+    override suspend fun isPremiumPurchased(accountId: String): Boolean {
+        return billingDataStore.isPremiumPurchasedForAccount(accountId).first()
     }
 
     fun queryPurchases() {
@@ -214,8 +223,6 @@ class BillingRepositoryImpl @Inject constructor(
                 .build(),
         ) { billingResult, purchases ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                // ここで「該当する課金アイテムが購入済みかどうか」をチェック
-                // （複数商品を扱う場合はループして対象アイテムを探す）
                 var foundValidPurchase = false
                 purchases.forEach { purchase ->
                     if (purchase.products.contains(PRODUCT_ID)) {
@@ -224,13 +231,6 @@ class BillingRepositoryImpl @Inject constructor(
                             handlePurchase(purchase)
                             foundValidPurchase = true
                         }
-                    }
-                }
-
-                // 「有効な購入が見つからなかった」なら購入フラグをfalseに更新
-                if (!foundValidPurchase) {
-                    coroutineScope.launch {
-                        billingDataStore.setPremiumPurchased(false)
                     }
                 }
             } else {
@@ -247,14 +247,24 @@ class BillingRepositoryImpl @Inject constructor(
 
     override fun launchBillingFlow(activity: Activity) {
         coroutineScope.launch {
-            if (isPremiumPurchased()) {
+            val accountId = currentAccountId
+            if (accountId.isNullOrEmpty()) {
+                // ログインしていない場合のエラー処理
+                _purchaseResult.emit(
+                    BillingRepository.PurchaseResult.Error("Not logged in; cannot launchBillingFlow."),
+                )
+                return@launch
+            }
+
+            // 以下は、既存の処理をそのまま流用（例） -------------------------
+            if (isPremiumPurchased(accountId)) {
                 _purchaseResult.emit(
                     BillingRepository.PurchaseResult.Error("Premium already purchased."),
                 )
                 return@launch
             }
 
-            Log.d(TAG, "Starting launchBillingFlow, BillingClient ready: ${isBillingClientReady.value}")
+            // BillingClient初期化待ちなどはそのまま
             if (!isBillingClientReady.value) {
                 initializeBillingClient()
                 try {
@@ -262,81 +272,49 @@ class BillingRepositoryImpl @Inject constructor(
                         isBillingClientReady.filter { it }.first()
                     }
                 } catch (e: TimeoutCancellationException) {
-                    Log.e(TAG, "BillingClient initialization timed out")
                     _purchaseResult.emit(
-                        BillingRepository.PurchaseResult.Error("BillingClient initialization timed out"),
+                        BillingRepository.PurchaseResult.Error("BillingClient init timed out."),
                     )
                     return@launch
                 }
             }
 
+            // ProductDetailsを取得
             val productList = listOf(
                 QueryProductDetailsParams.Product.newBuilder()
                     .setProductId(PRODUCT_ID)
                     .setProductType(BillingClient.ProductType.INAPP)
                     .build(),
             )
-            Log.d(TAG, "Querying product details for productId: $PRODUCT_ID")
-
             val params = QueryProductDetailsParams.newBuilder()
                 .setProductList(productList)
                 .build()
 
-            withContext(Dispatchers.Main) {
-                billingClient?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
-                    Log.d(
-                        TAG,
-                        "queryProductDetailsAsync result: " +
-                            "responseCode=${billingResult.responseCode}, " +
-                            "debugMessage=${billingResult.debugMessage}, " +
-                            "productDetails size=${productDetailsList.size}",
+            billingClient?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                    productDetailsList.isNotEmpty()
+                ) {
+                    val productDetails = productDetailsList[0]
+                    val productDetailsParamsList = listOf(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(productDetails)
+                            .build(),
                     )
 
-                    if (productDetailsList.isNotEmpty()) {
-                        Log.d(
-                            TAG,
-                            "Product details found: " +
-                                "productId=${productDetailsList[0].productId}, " +
-                                "name=${productDetailsList[0].name}, " +
-                                "type=${productDetailsList[0].productType}",
-                        )
-                    }
+                    // ここで setObfuscatedAccountId に currentAccountId を設定
+                    val billingFlowParams = BillingFlowParams.newBuilder()
+                        .setProductDetailsParamsList(productDetailsParamsList)
+                        .setObfuscatedAccountId(accountId)
+                        .build()
 
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
-                        productDetailsList.isNotEmpty()
-                    ) {
-                        val productDetails = productDetailsList[0]
-                        val productDetailsParamsList = listOf(
-                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setProductDetails(productDetails)
-                                .build(),
+                    billingClient?.launchBillingFlow(activity, billingFlowParams)
+                } else {
+                    coroutineScope.launch {
+                        _purchaseResult.emit(
+                            BillingRepository.PurchaseResult.Error(
+                                "Failed to retrieve product details: ${billingResult.debugMessage}",
+                            ),
                         )
-
-                        val billingFlowParams = BillingFlowParams.newBuilder()
-                            .setProductDetailsParamsList(productDetailsParamsList)
-                            .build()
-
-                        val launchResult = billingClient?.launchBillingFlow(activity, billingFlowParams)
-                        Log.d(
-                            TAG,
-                            "launchBillingFlow result: " +
-                                "responseCode=${launchResult?.responseCode}, " +
-                                "debugMessage=${launchResult?.debugMessage}",
-                        )
-                    } else {
-                        Log.e(
-                            TAG,
-                            "Failed to retrieve product details: " +
-                                "responseCode=${billingResult.responseCode}, " +
-                                "debugMessage=${billingResult.debugMessage}",
-                        )
-                        coroutineScope.launch {
-                            _purchaseResult.emit(
-                                BillingRepository.PurchaseResult.Error(
-                                    "Failed to retrieve product details: ${billingResult.debugMessage}",
-                                ),
-                            )
-                        }
                     }
                 }
             }

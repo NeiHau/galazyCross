@@ -43,7 +43,7 @@ android {
         applicationId = "com.hakutogames.galaxycross"
         minSdk = 24
         targetSdk = 34
-        versionCode = 8
+        versionCode = 13
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -153,4 +153,6 @@ dependencies {
 
     // ExoPlayer
     implementation(libs.exoplayer)
+
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 }

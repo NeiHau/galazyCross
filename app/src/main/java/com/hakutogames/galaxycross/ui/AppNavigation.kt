@@ -33,6 +33,7 @@ sealed class Screen(val route: String) {
 fun AppNavigation(
     navController: NavHostController,
     onShowSnackbar: (String) -> Unit,
+    onGoogleSignInRequested: (actionAfterSignIn: () -> Unit) -> Unit,
 ) {
     val levelSelectionViewModel: LevelSelectionViewModel = hiltViewModel()
     val puzzleViewModel: PuzzleViewModel = hiltViewModel()
@@ -70,6 +71,8 @@ fun AppNavigation(
                     navController.navigate(Screen.Setting.route)
                 },
                 isReturningToLevelSelection = isReturningToLevelSelection,
+                onGoogleSignInRequested = onGoogleSignInRequested,
+                isLoggedIn = levelSelectionViewModel.isLoggedIn(),
             )
         }
 

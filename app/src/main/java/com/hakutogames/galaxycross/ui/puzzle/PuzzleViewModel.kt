@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.hakutogames.galaxycross.data.GameLevels
 import com.hakutogames.galaxycross.domain.GameState
 import com.hakutogames.galaxycross.domain.GridItem
-import com.hakutogames.galaxycross.repository.BillingRepository
 import com.hakutogames.galaxycross.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,16 +20,11 @@ import javax.inject.Inject
 @HiltViewModel
 class PuzzleViewModel @Inject constructor(
     private val gameRepository: GameRepository,
-    billingRepository: BillingRepository,
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
     private var currentLevel: Int = 0
-
-    val isPremiumPurchased: StateFlow<Boolean> = billingRepository
-        .getPurchaseState()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val clearedLevels: StateFlow<Set<Int>> = gameRepository.getClearedLevelsFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
