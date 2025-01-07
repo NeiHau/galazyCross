@@ -13,6 +13,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.hakutogames.galaxycross.domain.PurchaseResult
 import com.hakutogames.galaxycross.local.db.BillingDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -38,12 +39,6 @@ interface BillingRepository {
     fun queryPurchases()
     fun launchBillingFlow(activity: Activity)
     suspend fun clearPurchaseByToken(purchaseToken: String)
-
-    sealed class PurchaseResult {
-        data object Success : PurchaseResult()
-        data object Canceled : PurchaseResult()
-        data class Error(val message: String?) : PurchaseResult()
-    }
 }
 
 @Singleton
@@ -52,19 +47,14 @@ class BillingRepositoryImpl @Inject constructor(
     private val billingDataStore: BillingDataStore,
 ) : BillingRepository, PurchasesUpdatedListener {
 
-    companion object {
-        private const val PRODUCT_ID = "product_1"
-        private const val TAG = "BillingRepositoryImpl"
-    }
-
     private var billingClient: BillingClient? = null
 
     // デバイス全体での購入状態を管理
     private val _isPremiumPurchased = MutableStateFlow(false)
     override val isPremiumPurchased: StateFlow<Boolean> = _isPremiumPurchased
 
-    private val _purchaseResult = MutableSharedFlow<BillingRepository.PurchaseResult>()
-    override val purchaseResult: SharedFlow<BillingRepository.PurchaseResult> = _purchaseResult.asSharedFlow()
+    private val _purchaseResult = MutableSharedFlow<PurchaseResult>()
+    override val purchaseResult: SharedFlow<PurchaseResult> = _purchaseResult.asSharedFlow()
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -139,18 +129,18 @@ class BillingRepositoryImpl @Inject constructor(
                 coroutineScope.launch {
                     billingDataStore.setPremiumPurchased(true)
                     _isPremiumPurchased.value = true
-                    _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
+                    _purchaseResult.emit(PurchaseResult.Success)
                 }
             }
             BillingClient.BillingResponseCode.USER_CANCELED -> {
                 coroutineScope.launch {
-                    _purchaseResult.emit(BillingRepository.PurchaseResult.Canceled)
+                    _purchaseResult.emit(PurchaseResult.Canceled)
                 }
             }
             else -> {
                 coroutineScope.launch {
                     _purchaseResult.emit(
-                        BillingRepository.PurchaseResult.Error(
+                        PurchaseResult.Error(
                             "Purchase failed: ${billingResult.debugMessage}",
                         ),
                     )
@@ -187,7 +177,7 @@ class BillingRepositoryImpl @Inject constructor(
         coroutineScope.launch {
             billingDataStore.setPremiumPurchased(true)
             _isPremiumPurchased.value = true
-            _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
+            _purchaseResult.emit(PurchaseResult.Success)
         }
     }
 
@@ -221,7 +211,7 @@ class BillingRepositoryImpl @Inject constructor(
                     }
                 } catch (e: TimeoutCancellationException) {
                     _purchaseResult.emit(
-                        BillingRepository.PurchaseResult.Error("BillingClient init timed out."),
+                        PurchaseResult.Error("BillingClient init timed out."),
                     )
                     return@launch
                 }
@@ -285,7 +275,7 @@ class BillingRepositoryImpl @Inject constructor(
                         coroutineScope.launch {
                             billingDataStore.setPremiumPurchased(false)
                             _isPremiumPurchased.value = false
-                            _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
+                            _purchaseResult.emit(PurchaseResult.Success)
 
                             // BillingClientを再初期化して、キャッシュをクリア
                             initializeBillingClient(forceReinitialize = true)
@@ -296,14 +286,14 @@ class BillingRepositoryImpl @Inject constructor(
                         coroutineScope.launch {
                             billingDataStore.setPremiumPurchased(false)
                             _isPremiumPurchased.value = false
-                            _purchaseResult.emit(BillingRepository.PurchaseResult.Success)
+                            _purchaseResult.emit(PurchaseResult.Success)
                         }
                     }
                     else -> {
                         Log.e(TAG, "Failed to consume purchase: ${consumeResult.debugMessage}")
                         coroutineScope.launch {
                             _purchaseResult.emit(
-                                BillingRepository.PurchaseResult.Error(
+                                PurchaseResult.Error(
                                     "Failed to consume purchase: ${consumeResult.debugMessage}",
                                 ),
                             )
@@ -317,11 +307,16 @@ class BillingRepositoryImpl @Inject constructor(
                 billingDataStore.setPremiumPurchased(false)
                 _isPremiumPurchased.value = false
                 _purchaseResult.emit(
-                    BillingRepository.PurchaseResult.Error(
+                    PurchaseResult.Error(
                         "Error clearing purchase: ${e.message}",
                     ),
                 )
             }
         }
+    }
+
+    companion object {
+        private const val PRODUCT_ID = "product_1"
+        private const val TAG = "BillingRepositoryImpl"
     }
 }

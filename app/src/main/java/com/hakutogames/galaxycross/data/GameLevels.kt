@@ -605,7 +605,155 @@ object GameLevels {
             ),
         ),
 
-        // レベル25(35) まだ
+        // レベル25(35)
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "0",
+                    position = Offset(2f, 2f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+                GridItem(id = "1", position = Offset(0f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "2", position = Offset(2f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "3", position = Offset(2f, 1f), length = 3, isHorizontal = true),
+                GridItem(id = "4", position = Offset(5f, 1f), length = 2, isHorizontal = false),
+                GridItem(id = "5", position = Offset(0f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "6", position = Offset(3f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "7", position = Offset(3f, 3f), length = 2, isHorizontal = false),
+                GridItem(id = "8", position = Offset(4f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "10", position = Offset(1f, 4f), length = 2, isHorizontal = true),
+                GridItem(id = "11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
+                GridItem(id = "12", position = Offset(3f, 5f), length = 3, isHorizontal = true),
+            ),
+        ),
+
+        // レベル26(36)
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "0",
+                    position = Offset(2f, 3f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+                GridItem(id = "1", position = Offset(1f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "2", position = Offset(3f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "3", position = Offset(4f, 1f), length = 2, isHorizontal = false),
+                GridItem(id = "4", position = Offset(0f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "5", position = Offset(2f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "6", position = Offset(4f, 1f), length = 2, isHorizontal = false),
+                GridItem(id = "7", position = Offset(0f, 3f), length = 2, isHorizontal = false),
+                GridItem(id = "8", position = Offset(3f, 3f), length = 3, isHorizontal = true),
+                GridItem(id = "9", position = Offset(0f, 5f), length = 3, isHorizontal = true),
+            ),
+        ),
+
+        // レベル27(37)
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "0",
+                    position = Offset(2f, 2f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+                GridItem(id = "1", position = Offset(0f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "2", position = Offset(4f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "3", position = Offset(5f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "4", position = Offset(0f, 1f), length = 3, isHorizontal = true),
+                GridItem(id = "5", position = Offset(0f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
+                GridItem(id = "7", position = Offset(0f, 3f), length = 3, isHorizontal = false),
+                GridItem(id = "8", position = Offset(1f, 3f), length = 2, isHorizontal = false),
+                GridItem(id = "9", position = Offset(3f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "10", position = Offset(1f, 5f), length = 2, isHorizontal = true),
+                GridItem(id = "11", position = Offset(3f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "12", position = Offset(4f, 4f), length = 2, isHorizontal = true),
+            ),
+        ),
+
+        // レベル28(38)
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "0",
+                    position = Offset(2f, 1f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+                GridItem(id = "1", position = Offset(1f, 0f), length = 3, isHorizontal = true),
+                GridItem(id = "2", position = Offset(4f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "3", position = Offset(0f, 1f), length = 2, isHorizontal = true),
+                GridItem(id = "4", position = Offset(5f, 1f), length = 2, isHorizontal = false),
+                GridItem(id = "5", position = Offset(0f, 2f), length = 2, isHorizontal = false),
+                GridItem(id = "6", position = Offset(3f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "7", position = Offset(1f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "8", position = Offset(4f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "9", position = Offset(3f, 3f), length = 3, isHorizontal = false),
+                GridItem(id = "10", position = Offset(0f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "11", position = Offset(5f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "12", position = Offset(0f, 5f), length = 3, isHorizontal = true),
+            ),
+        ),
+
+        // レベル29(39)
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "0",
+                    position = Offset(2f, 3f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+                GridItem(id = "1", position = Offset(0f, 0f), length = 3, isHorizontal = false),
+                GridItem(id = "2", position = Offset(1f, 0f), length = 2, isHorizontal = false),
+                GridItem(id = "3", position = Offset(2f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "4", position = Offset(4f, 0f), length = 2, isHorizontal = true),
+                GridItem(id = "5", position = Offset(2f, 1f), length = 3, isHorizontal = true),
+                GridItem(id = "6", position = Offset(5f, 1f), length = 2, isHorizontal = false),
+                GridItem(id = "7", position = Offset(1f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "8", position = Offset(4f, 2f), length = 2, isHorizontal = false),
+                GridItem(id = "9", position = Offset(0f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "10", position = Offset(5f, 3f), length = 2, isHorizontal = false),
+                GridItem(id = "11", position = Offset(3f, 4f), length = 2, isHorizontal = true),
+                GridItem(id = "12", position = Offset(2f, 5f), length = 2, isHorizontal = true),
+                GridItem(id = "13", position = Offset(4f, 5f), length = 2, isHorizontal = true),
+            ),
+        ),
+
+        // レベル30(40)
+        assignPlanetIcons(
+            listOf(
+                GridItem(
+                    id = "0",
+                    position = Offset(2f, 4f),
+                    length = 2,
+                    isHorizontal = false,
+                    isTarget = true,
+                ),
+                GridItem(id = "1", position = Offset(0f, 0f), length = 3, isHorizontal = false),
+                GridItem(id = "2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
+                GridItem(id = "3", position = Offset(1f, 1f), length = 2, isHorizontal = true),
+                GridItem(id = "4", position = Offset(3f, 1f), length = 2, isHorizontal = false),
+                GridItem(id = "5", position = Offset(1f, 2f), length = 2, isHorizontal = false),
+                GridItem(id = "6", position = Offset(4f, 2f), length = 2, isHorizontal = true),
+                GridItem(id = "7", position = Offset(0f, 3f), length = 2, isHorizontal = false),
+                GridItem(id = "8", position = Offset(2f, 3f), length = 2, isHorizontal = true),
+                GridItem(id = "9", position = Offset(4f, 3f), length = 2, isHorizontal = false),
+                GridItem(id = "10", position = Offset(5f, 3f), length = 3, isHorizontal = false),
+                GridItem(id = "11", position = Offset(3f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "12", position = Offset(0f, 5f), length = 2, isHorizontal = true),
+            ),
+        ),
+
+        // レベル31(41) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -631,7 +779,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル26(36) まだ
+        // レベル32(42) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -657,7 +805,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル27(37) まだ
+        // レベル33(43) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -683,7 +831,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル28(38) まだ
+        // レベル34(44) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -709,7 +857,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル29 まだ
+        // レベル35(45) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -735,7 +883,7 @@ object GameLevels {
             ),
         ),
 
-        // レベル30 まだ
+        // レベル36(46) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -761,6 +909,7 @@ object GameLevels {
             ),
         ),
 
+        // レベル37(47) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -786,6 +935,7 @@ object GameLevels {
             ),
         ),
 
+        // レベル38(48) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -811,6 +961,7 @@ object GameLevels {
             ),
         ),
 
+        // レベル39(49) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(
@@ -836,156 +987,7 @@ object GameLevels {
             ),
         ),
 
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(1f, 2f),
-                    length = 2,
-                    isHorizontal = true,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(2f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
-                GridItem(id = "v3", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v5", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v7", position = Offset(1f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "v8", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(2f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-            ),
-        ),
-
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(1f, 2f),
-                    length = 2,
-                    isHorizontal = true,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(2f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
-                GridItem(id = "v3", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v5", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v7", position = Offset(1f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "v8", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(2f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-            ),
-        ),
-
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(1f, 2f),
-                    length = 2,
-                    isHorizontal = true,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(2f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
-                GridItem(id = "v3", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v5", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v7", position = Offset(1f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "v8", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(2f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-            ),
-        ),
-
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(1f, 2f),
-                    length = 2,
-                    isHorizontal = true,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(2f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
-                GridItem(id = "v3", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v5", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v7", position = Offset(1f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "v8", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(2f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-            ),
-        ),
-
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(1f, 2f),
-                    length = 2,
-                    isHorizontal = true,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(2f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
-                GridItem(id = "v3", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v5", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v7", position = Offset(1f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "v8", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(2f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-            ),
-        ),
-
-        assignPlanetIcons(
-            listOf(
-                GridItem(
-                    id = "target",
-                    position = Offset(1f, 2f),
-                    length = 2,
-                    isHorizontal = true,
-                    isTarget = true,
-                ),
-                GridItem(id = "v1", position = Offset(2f, 0f), length = 2, isHorizontal = false),
-                GridItem(id = "v2", position = Offset(3f, 0f), length = 3, isHorizontal = true),
-                GridItem(id = "v3", position = Offset(3f, 1f), length = 2, isHorizontal = false),
-                GridItem(id = "v4", position = Offset(4f, 1f), length = 2, isHorizontal = true),
-                GridItem(id = "v5", position = Offset(4f, 2f), length = 3, isHorizontal = false),
-                GridItem(id = "v6", position = Offset(5f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v7", position = Offset(1f, 3f), length = 2, isHorizontal = false),
-                GridItem(id = "v8", position = Offset(0f, 2f), length = 2, isHorizontal = false),
-                GridItem(id = "v9", position = Offset(0f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "v10", position = Offset(2f, 4f), length = 2, isHorizontal = true),
-                GridItem(id = "v11", position = Offset(1f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v12", position = Offset(3f, 5f), length = 2, isHorizontal = true),
-                GridItem(id = "v13", position = Offset(5f, 4f), length = 2, isHorizontal = false),
-            ),
-        ),
-
+        // レベル40(50) まだ
         assignPlanetIcons(
             listOf(
                 GridItem(

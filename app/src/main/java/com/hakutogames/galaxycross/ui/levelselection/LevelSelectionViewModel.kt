@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hakutogames.galaxycross.application.usecase.GoogleBillingUseCase
-import com.hakutogames.galaxycross.repository.BillingRepository
+import com.hakutogames.galaxycross.domain.PurchaseResult
 import com.hakutogames.galaxycross.ui.ext.asEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -40,14 +40,14 @@ class LevelSelectionViewModel @Inject constructor(
                 if (!isPurchaseInProgress) return@collect
 
                 when (result) {
-                    is BillingRepository.PurchaseResult.Success -> {
+                    is PurchaseResult.Success -> {
                         _uiEvent.send(UiEvent.PurchaseSuccess)
                         isPurchaseInProgress = false
                     }
-                    is BillingRepository.PurchaseResult.Canceled -> {
+                    is PurchaseResult.Canceled -> {
                         isPurchaseInProgress = false
                     }
-                    is BillingRepository.PurchaseResult.Error -> {
+                    is PurchaseResult.Error -> {
                         _uiEvent.send(UiEvent.PurchaseError(result.message))
                         isPurchaseInProgress = false
                     }
