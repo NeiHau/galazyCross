@@ -35,7 +35,9 @@ import javax.inject.Singleton
 interface BillingRepository {
     val purchaseResult: SharedFlow<PurchaseResult>
     val isPremiumPurchased: StateFlow<Boolean>
+    fun queryPurchases()
     fun launchBillingFlow(activity: Activity)
+    suspend fun clearPurchaseByToken(purchaseToken: String)
 
     sealed class PurchaseResult {
         data object Success : PurchaseResult()
@@ -189,7 +191,7 @@ class BillingRepositoryImpl @Inject constructor(
         }
     }
 
-    fun queryPurchases() {
+    override fun queryPurchases() {
         billingClient?.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.INAPP)
@@ -257,7 +259,7 @@ class BillingRepositoryImpl @Inject constructor(
         }
     }
 
-    suspend fun clearPurchaseByToken(purchaseToken: String) {
+    override suspend fun clearPurchaseByToken(purchaseToken: String) {
         if (!isBillingClientReady.value) {
             try {
                 withTimeout(5000) {
@@ -319,38 +321,6 @@ class BillingRepositoryImpl @Inject constructor(
                         "Error clearing purchase: ${e.message}",
                     ),
                 )
-            }
-        }
-    }
-
-    /**
-     * 購入状態を強制的に更新します。
-     * システムレベルでの購入状態を確認し、アプリの状態と同期させます。
-     */
-    private fun forceRefreshPurchaseState() {
-        billingClient?.queryPurchasesAsync(
-            QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.INAPP)
-                .build(),
-        ) { billingResult, purchases ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val hasValidPurchase = purchases.any { purchase ->
-                    purchase.products.contains(PRODUCT_ID) &&
-                        purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
-                        purchase.isAcknowledged
-                }
-
-                coroutineScope.launch {
-                    // DataStoreとメモリ上の状態を同期
-                    billingDataStore.setPremiumPurchased(hasValidPurchase)
-                    _isPremiumPurchased.value = hasValidPurchase
-                }
-            } else {
-                // クエリが失敗した場合は、安全のため非購入状態とする
-                coroutineScope.launch {
-                    billingDataStore.setPremiumPurchased(false)
-                    _isPremiumPurchased.value = false
-                }
             }
         }
     }

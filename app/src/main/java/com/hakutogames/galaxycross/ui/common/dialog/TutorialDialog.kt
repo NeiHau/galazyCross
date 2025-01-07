@@ -46,7 +46,7 @@ fun TutorialDialog(
         Surface(
             modifier = Modifier
                 .width(screenWidth * 0.9f)
-                .height(screenHeight * 1f),
+                .height(screenHeight * 0.95f),
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 8.dp,
@@ -54,7 +54,7 @@ fun TutorialDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -67,7 +67,7 @@ fun TutorialDialog(
                             .height(screenHeight * 0.48f)
                             .width(screenWidth * 0.8f),
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -83,7 +83,7 @@ fun TutorialDialog(
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append("3. ゴールを目指そう\n")
                             }
-                            append("星を避けながら、宇宙船をゴールまで導いてください。クリアするとゲーム終了です！\n\n")
+                            append("星を避けながら、宇宙船をゴールまで導いてください。\n\n")
 
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append("4. リセット\n")
