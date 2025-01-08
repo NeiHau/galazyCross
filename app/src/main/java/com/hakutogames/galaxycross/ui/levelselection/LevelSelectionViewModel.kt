@@ -33,9 +33,7 @@ class LevelSelectionViewModel @Inject constructor(
     private var isPurchaseInProgress = false
 
     init {
-        clearPurchaseByToken(
-            "",
-        )
+        clearPurchaseByToken("")
 
         viewModelScope.launch {
             billingUseCases.purchaseResult.collect { result ->
