@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LevelSelectionItem(
+    modifier: Modifier,
     levelNumber: Int,
     isEnabled: Boolean,
     isCleared: Boolean,
@@ -57,7 +58,7 @@ fun LevelSelectionItem(
     }
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(cardHeight)
             .semantics {
@@ -150,7 +151,6 @@ fun LevelSelectionItem(
                         },
                     )
                 }
-
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = null,

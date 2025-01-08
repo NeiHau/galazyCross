@@ -83,34 +83,36 @@ fun GameClearDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                when {
-                    // (2) 無課金ユーザー: レベル15未満
-                    hasNextLevel && !isPremiumUser && currentLevel < 14 -> {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = onNextLevel,
-                        ) {
-                            Text("次のレベルへ")
+                if (hasNextLevel) {
+                    when {
+                        // 無課金ユーザーでレベル15未満の場合
+                        !isPremiumUser && currentLevel < 14 -> {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = onNextLevel,
+                            ) {
+                                Text("次のレベルへ")
+                            }
                         }
-                    }
 
-                    // (3) 課金ユーザー: currentLevel < 16
-                    hasNextLevel && isPremiumUser && currentLevel < 16 -> {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = onNextLevel,
-                        ) {
-                            Text("次のレベルへ")
+                        // 課金ユーザーでレベル16未満の場合
+                        isPremiumUser && currentLevel < 16 -> {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = onNextLevel,
+                            ) {
+                                Text("次のレベルへ")
+                            }
                         }
-                    }
 
-                    // (1) 課金ユーザー: currentLevel >= 16 (etc.)
-                    hasNextLevel && isPremiumUser -> {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = onNextLevel,
-                        ) {
-                            Text("次のレベルへ")
+                        // 他の課金ユーザーのケース (必要に応じて調整)
+                        isPremiumUser -> {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = onNextLevel,
+                            ) {
+                                Text("次のレベルへ")
+                            }
                         }
                     }
                 }

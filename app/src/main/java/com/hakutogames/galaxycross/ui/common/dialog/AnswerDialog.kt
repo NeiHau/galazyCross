@@ -3,6 +3,7 @@ package com.hakutogames.galaxycross.ui.common.dialog
 import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -34,6 +36,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.AssetDataSource
 import com.google.android.exoplayer2.upstream.DataSource
+import java.io.IOException
 
 class AssetDataSourceFactory(private val context: Context) : DataSource.Factory {
     override fun createDataSource(): DataSource {
@@ -48,27 +51,38 @@ fun AnswerDialog(
 ) {
     val context = LocalContext.current
     val assetName = "level_${levelIndex + 1}_answer.mp4"
+    val assetExists = try {
+        context.assets.open(assetName).close()
+        true
+    } catch (e: IOException) {
+        false
+    }
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
-    val player = remember {
-        ExoPlayer.Builder(context).build().apply {
-            val dataSourceFactory = AssetDataSourceFactory(context)
-            val mediaItem = MediaItem.Builder()
-                .setUri(Uri.parse("asset:///$assetName"))
-                .build()
-            val mediaSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(mediaItem)
+    val player = if (assetExists) {
+        remember {
+            ExoPlayer.Builder(context).build().apply {
+                val dataSourceFactory = AssetDataSourceFactory(context)
+                val mediaItem = MediaItem.Builder()
+                    .setUri(Uri.parse("asset:///$assetName"))
+                    .build()
+                val mediaSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(mediaItem)
 
-            setMediaSource(mediaSource)
-            prepare()
-            playWhenReady = true
+                setMediaSource(mediaSource)
+                prepare()
+                playWhenReady = true
+            }
         }
+    } else {
+        null
     }
 
     DisposableEffect(player) {
         onDispose {
-            player.release()
+            player?.release()
         }
     }
 
@@ -99,20 +113,39 @@ fun AnswerDialog(
                     color = Color.Black,
                     fontSize = 12.sp,
                 )
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .background(color = Color.Black),
-                    factory = {
-                        PlayerView(context).apply {
-                            this.player = player
-                            useController = true
-                            setShowRewindButton(false)
-                            setShowFastForwardButton(false)
-                        }
-                    },
-                )
+                if (assetExists) {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(color = Color.Black),
+                        factory = {
+                            PlayerView(context).apply {
+                                this.player = player
+                                useController = true
+                                setShowRewindButton(false)
+                                setShowFastForwardButton(false)
+                            }
+                        },
+                    )
+                } else {
+                    // アセットが存在しない場合のテキスト表示
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "現在、解答動画を作成中です。今後のアップデートをお待ちください。",
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp),
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     modifier = Modifier.padding(bottom = 8.dp),

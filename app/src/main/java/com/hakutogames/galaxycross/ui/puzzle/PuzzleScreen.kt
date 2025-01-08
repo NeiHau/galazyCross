@@ -152,12 +152,16 @@ private fun PuzzleScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { showAnswerDialog = true }) {
-                            Icon(
-                                modifier = Modifier.size(40.dp),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_info_icon),
-                                contentDescription = "回答動画を表示",
-                            )
+                        if (levelIndex == TUTORIAL_LEVEL_INDEX) {
+                            Box {}
+                        } else {
+                            IconButton(onClick = { showAnswerDialog = true }) {
+                                Icon(
+                                    modifier = Modifier.size(40.dp),
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_info_icon),
+                                    contentDescription = "回答動画を表示",
+                                )
+                            }
                         }
                     },
                 )

@@ -33,7 +33,9 @@ class LevelSelectionViewModel @Inject constructor(
     private var isPurchaseInProgress = false
 
     init {
-        clearPurchaseByToken("")
+        clearPurchaseByToken(
+            "",
+        )
 
         viewModelScope.launch {
             billingUseCases.purchaseResult.collect { result ->
@@ -45,6 +47,7 @@ class LevelSelectionViewModel @Inject constructor(
                         isPurchaseInProgress = false
                     }
                     is PurchaseResult.Canceled -> {
+                        _uiEvent.send(UiEvent.PurchaseCancel)
                         isPurchaseInProgress = false
                     }
                     is PurchaseResult.Error -> {
@@ -79,6 +82,7 @@ class LevelSelectionViewModel @Inject constructor(
 
     sealed class UiEvent {
         data object PurchaseSuccess : UiEvent()
+        data object PurchaseCancel : UiEvent()
         data class PurchaseError(val message: String?) : UiEvent()
     }
 }

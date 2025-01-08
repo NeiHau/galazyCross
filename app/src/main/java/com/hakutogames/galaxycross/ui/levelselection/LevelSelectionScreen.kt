@@ -54,12 +54,16 @@ fun LevelSelectionScreen(
     // Snackbarのメッセージを取得
     val premiumUnlockText = stringResource(R.string.premium_unlock)
     val premiumFailureText = stringResource(R.string.premium_failure)
+    val purchaseCancelText = stringResource(R.string.premium_cancel)
     val premiumCannotBuyText = stringResource(R.string.premium_cannot_start_buy_process)
 
     viewModel.uiEvent.observeWithLifecycle { event ->
         when (event) {
             is LevelSelectionViewModel.UiEvent.PurchaseSuccess -> {
                 onShowSnackbar(premiumUnlockText)
+            }
+            is LevelSelectionViewModel.UiEvent.PurchaseCancel -> {
+                onShowSnackbar(purchaseCancelText)
             }
             is LevelSelectionViewModel.UiEvent.PurchaseError -> {
                 onShowSnackbar(premiumFailureText)
@@ -191,6 +195,7 @@ private fun LevelSelectionScreen(
                     val requiresPremium = index >= 15 && !isPremiumPurchased
 
                     LevelSelectionItem(
+                        modifier = if (index == 0) Modifier.padding(top = 8.dp) else Modifier,
                         levelNumber = index + 1,
                         isPremiumUser = isPremiumPurchased,
                         isEnabled = isEnabled,
