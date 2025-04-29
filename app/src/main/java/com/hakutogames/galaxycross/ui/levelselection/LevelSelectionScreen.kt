@@ -181,14 +181,8 @@ private fun LevelSelectionScreen(
                     key = { index -> index },
                 ) { index ->
                     val isEnabled = when {
-                        index < 15 -> {
-                            if (index == 0) {
-                                isTutorialCompleted
-                            } else {
-                                clearedLevels.contains(index - 1)
-                            }
-                        }
-                        isPremiumPurchased -> clearedLevels.contains(index - 1)
+                        isPremiumPurchased -> true
+                        index < 15 -> true
                         else -> false
                     }
                     val isCleared = clearedLevels.contains(index)

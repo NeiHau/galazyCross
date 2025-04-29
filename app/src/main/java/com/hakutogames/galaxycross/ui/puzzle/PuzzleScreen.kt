@@ -207,6 +207,7 @@ private fun PuzzleScreen(
                     ambulanceIcon = spaceShuttleIcon,
                     planetIcons = planetIcons,
                     onVehicleSelect = { selectVehicle(it) },
+                    onVehicleMove = moveVehicle,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 GridItemControl(

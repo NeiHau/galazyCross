@@ -185,9 +185,8 @@ object GameLevels {
                 GridItem(id = "5", position = Offset(0f, 3f), length = 2, isHorizontal = false),
                 GridItem(id = "6", position = Offset(1f, 3f), length = 2, isHorizontal = true),
                 GridItem(id = "7", position = Offset(4f, 3f), length = 2, isHorizontal = true),
-                GridItem(id = "8", position = Offset(0f, 4f), length = 3, isHorizontal = true),
-                GridItem(id = "9", position = Offset(3f, 4f), length = 2, isHorizontal = false),
-                GridItem(id = "10", position = Offset(0f, 5f), length = 2, isHorizontal = true),
+                GridItem(id = "8", position = Offset(3f, 4f), length = 2, isHorizontal = false),
+                GridItem(id = "9", position = Offset(0f, 5f), length = 2, isHorizontal = true),
             ),
         ),
 

@@ -1,6 +1,7 @@
 package com.hakutogames.galaxycross.ui.levelselection.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun LevelSelectionItem(
@@ -42,6 +44,7 @@ fun LevelSelectionItem(
     isPremiumUser: Boolean,
     onClick: () -> Unit,
 ) {
+    val isDarkTheme = isSystemInDarkTheme()
     val stateDescription = when {
         requiresPremium -> "プレミアム機能未解除"
         isCleared -> "クリア済み"
@@ -52,8 +55,7 @@ fun LevelSelectionItem(
 
     val containerColorValue = when {
         requiresPremium && !isPremiumUser && levelNumber >= 16 -> MaterialTheme.colorScheme.secondaryContainer
-        requiresPremium -> MaterialTheme.colorScheme.surface
-        isEnabled -> MaterialTheme.colorScheme.surface
+        isEnabled -> if (isDarkTheme) Color(0xFFa9a9a9) else MaterialTheme.colorScheme.surface
         else -> Color.Gray
     }
 
@@ -90,11 +92,12 @@ fun LevelSelectionItem(
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
                         )
                         Text(
                             text = "(追加コンテンツご購入で遊べます)",
                             style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.W500,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                     }
@@ -144,6 +147,7 @@ fun LevelSelectionItem(
                         text = "レベル $levelNumber",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
                         color = if (isEnabled || requiresPremium) {
                             MaterialTheme.colorScheme.onSurface
                         } else {

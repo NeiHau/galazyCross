@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import com.hakutogames.galaxycross.domain.GameState
@@ -18,6 +19,7 @@ fun GameBoard(
     ambulanceIcon: Painter,
     planetIcons: List<Painter>,
     onVehicleSelect: (String) -> Unit,
+    onVehicleMove: (String, Offset) -> Unit,
 ) {
     val cellSize = boardSize / 6
 
@@ -46,6 +48,7 @@ fun GameBoard(
                     gridItem = vehicle,
                     isSelected = vehicle.id == gameState.selectedVehicleId,
                     onSelect = { onVehicleSelect(vehicle.id) },
+                    onMove = { newPosition -> onVehicleMove(vehicle.id, newPosition) },
                     cellSize = cellSize,
                     ambulanceIcon = ambulanceIcon,
                     planetIcons = planetIcons,

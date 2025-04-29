@@ -43,7 +43,7 @@ android {
         applicationId = "com.hakutogames.galaxycross"
         minSdk = 24
         targetSdk = 34
-        versionCode = 24
+        versionCode = 25
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
